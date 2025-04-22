@@ -1,0 +1,12 @@
+body {
+  background-color: #f4f2ee !important;
+}
+
+.imgStudio{
+  max-height: 58px;
+}
+
+.cardBox{
+  background-color: white;
+  box-sizing: content-box;
+}
