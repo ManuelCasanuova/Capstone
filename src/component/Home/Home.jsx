@@ -1,4 +1,4 @@
-import { Container, Row } from "react-bootstrap";
+import { Col, Container, Row } from "react-bootstrap";
 import PatientDashboard from "../Paziente/PatientDashboard";
 import WelcomeStudio from "./WelcomeStudio";
 
@@ -7,9 +7,9 @@ function Home () {
     <>
     <Container>
         <Row xs={2}>
+            <Col><PatientDashboard /></Col>
+            <Col><WelcomeStudio /></Col>
             
-            <PatientDashboard />
-            <WelcomeStudio />
         </Row>
     </Container>
     
