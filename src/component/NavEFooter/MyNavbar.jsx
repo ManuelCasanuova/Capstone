@@ -1,7 +1,8 @@
 import React from 'react';
-import { Navbar, Nav, Form, FormControl, Button, Dropdown, Image, Container } from 'react-bootstrap';
+import { Navbar, Nav, Button, Dropdown, Image, Container } from 'react-bootstrap';
+import { Link, NavLink } from 'react-router';
 
-const Header = () => {
+const MyNavbar = () => {
   return (
     <Navbar bg="light" expand="lg" className="shadow-sm py-3">
       <Container>
@@ -12,21 +13,25 @@ const Header = () => {
 
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
-          {/* Barra di ricerca (centrata su desktop) */}
-          <Form className="d-flex mx-auto my-2 my-lg-0 w-50">
-            <FormControl
-              type="search"
-              placeholder="Cerca paziente o referto..."
-              className="me-2"
-              aria-label="Search"
-            />
-            <Button variant="outline-primary">Cerca</Button>
-          </Form>
 
-          {/* Notifiche e Profilo */}
-          <Nav className="ms-auto d-flex align-items-center">
-            {/* Icona notifiche */}
-            <Button variant="link" className="position-relative me-3 p-0">
+
+          
+
+         
+
+         
+          <Nav className="me-auto d-flex align-items-center"> 
+          <NavLink to="/" className={`text-center nav-link ${location.pathname === "/" ? "navActive" : ""}`}>
+            <p>Dashboard</p>
+          </NavLink>
+          <NavLink to="/pazienti" className={`text-center nav-link ${location.pathname === "/" ? "navActive" : ""}`}>
+            <p>Pazienti</p>
+          </NavLink>
+          
+            
+          </Nav>
+          {/* Icona notifiche */}
+          <Button variant="link" className="position-relative me-3 p-0">
               <i className="bi bi-bell fs-5 text-secondary"></i>
               <span className="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
             </Button>
@@ -43,15 +48,14 @@ const Header = () => {
               </Dropdown.Toggle>
 
               <Dropdown.Menu>
-                <Dropdown.Item href="#/profilo">Profilo</Dropdown.Item>
+                <Dropdown.Item as={Link} to= "/profilo">Profilo</Dropdown.Item>
                 <Dropdown.Item href="#/logout">Logout</Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
-          </Nav>
         </Navbar.Collapse>
       </Container>
     </Navbar>
   );
 };
 
-export default Header;
+export default MyNavbar;
