@@ -1,24 +1,18 @@
-import React, { use, useEffect, useState } from "react";
-import { Button } from "react-bootstrap";
+import React, { useEffect, useState } from "react";
+import { Button, Image } from "react-bootstrap";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
 import { fetchLogin } from "../../redux/actions";
+import logo from "../../assets/Logo.png";
+
 
 function MyLogin() {
   const dispatch = useDispatch();
-
   const navigate = useNavigate();
 
   const [token, setToken] = useState(null);
-
-  const [formData, setFormData] = useState({
-    username: "",
-    password: "",
-  });
-
+  const [formData, setFormData] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
-
-  const [success, setSuccess] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -28,7 +22,6 @@ function MyLogin() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    setSuccess(false);
 
     dispatch(fetchLogin(formData.username, formData.password));
 
@@ -36,10 +29,8 @@ function MyLogin() {
       const myToken = localStorage.getItem("token");
       if (myToken) {
         setToken(myToken);
-        setSuccess(true);
       } else {
         setError("Token not found");
-        setSuccess(false);
       }
     }, 1000);
   };
@@ -51,45 +42,63 @@ function MyLogin() {
   }, [token, navigate]);
 
   return (
-    <div>
-      <h2 className="text-center">Accedi</h2>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      {success && <p style={{ color: "green" }}>Registration successful!</p>}
-      <form onSubmit={handleSubmit}>
-        <div>
-          <div className=" d-flex justify-content-between my-2">
-            <label className="">Username:</label>
-            <input
-              className="rounded-2 border border-secondary "
-              type="text"
-              name="username"
-              value={formData.username}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className=" d-flex justify-content-between my-2">
-            <label>Password:</label>
-            <input
-              className="rounded-2 border border-secondary "
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-            />
-          </div>
+    <div className="login-background">
+      {/* Logo in alto a sinistra */}
+      <div className="logo-top-left">
+        <Image src={logo} alt="Logo" fluid style={{ width: "160px" }} />
+      </div>
+  
+      {/* Contenitore con slogan + login affiancati */}
+      <div className="login-content-wrapper">
+        {/* Slogan a sinistra */}
+        <div className="slogan-box">
+          <h3 className="slogan-text">
+            Tecnologia al servizio della cura,<br />per medici e pazienti.
+          </h3>
         </div>
-
-        <div className="d-flex justify-content-between my-2">
-          <Button type="submit" variant="outline-success">
-            Login
-          </Button>
-          
+  
+        {/* Form a destra */}
+        <div className="login-box">
+          <h2 className="text-center mb-4">Accedi</h2>
+          {error && <p className="text-danger text-center">{error}</p>}
+  
+          <form onSubmit={handleSubmit}>
+            <div className="mb-3">
+              <label htmlFor="username" className="form-label">Username</label>
+              <input
+                id="username"
+                className="form-control"
+                type="text"
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
+                required
+              />
+            </div>
+  
+            <div className="mb-4">
+              <label htmlFor="password" className="form-label">Password</label>
+              <input
+                id="password"
+                className="form-control"
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+              />
+            </div>
+  
+            <div className="d-grid">
+              <Button type="submit" variant="success" size="lg">
+                Login
+              </Button>
+            </div>
+          </form>
         </div>
-      </form>
+      </div>
     </div>
   );
 }
+
 export default MyLogin;

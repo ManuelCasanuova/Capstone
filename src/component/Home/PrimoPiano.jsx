@@ -17,10 +17,10 @@ const PrimoPiano = () => {
   }, []);
 
   return (
-    <Container fluid className="bg-white border rounded-3 d-none d-lg-block px-0 mt-3">
+    <Container fluid className="bg-white border rounded-3 d-none d-lg-block px-0 mt-3 shadow-sm">
       <div className="d-flex align-items-center pt-3 px-3 ">
         <h3 className="mb-1 pointer">Notizie in tempo reale</h3>
-        <InfoSquareFill color="black" className="ms-auto pointer" />
+        
       </div>
       
 

@@ -19,28 +19,25 @@ function App() {
   return (
     <BrowserRouter>
         <MyNavbar />
-        <Container fluid className='p-0'>
+        
         <Routes>
 
 
       
-          <Route path="/" element={<Container className='pt-3'><AccessPage /></Container>} />
+          <Route path="/" element={<AccessPage />} />
           {/* PAGINA LOGIN */}
-          <Route path="/login" element={<Container className='pt-3'><MyLogin /></Container>} />
+          <Route path="/login" element={<MyLogin />}/>
 
-          <Route path="/dashboard" element={<Container className='pt-3'><Dashboard /></Container>} />
-
-
-
+          <Route path="/dashboard" element={<Dashboard />} />
 
           {/* PAGINA PAZIENTI */}
-          <Route path='/pazienti' element={<Container className='pt-3'><PaginaPazienti /></Container>} />
+          <Route path='/pazienti' element={<PaginaPazienti />} />
 
          
 
           {/* PAGINA PROFILO */}
-          <Route path="/profilo" element={<PaginaProfilo />} />
-          <Route path= '/paginaProfilo' element={<Container className='pt-3'><PaginaProfilo /></Container>} />
+          
+          <Route path= '/paginaProfilo/:id' element={<Container className='pt-3'><PaginaProfilo /></Container>} />
         
 
 
@@ -48,7 +45,7 @@ function App() {
 
 
         </Routes>
-        </Container>
+       
     </BrowserRouter>
    
     

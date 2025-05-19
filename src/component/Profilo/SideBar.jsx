@@ -3,23 +3,18 @@ import { Back, Clipboard2Check, Front } from "react-bootstrap-icons";
 
 const SideBar = () => {
     return (
-        <Container className="bg-white rounded-3 p-3">
+        <Container className="mt-4" >
 
 
-            <ul className="ps-0">
-                <li className="d-flex align-items-center">
-                    <Front className="fs-4 me-2" />
-                    <span className="fs-5">Anamnesi</span>
-                </li>
-                <li className="d-flex align-items-center">
-                    <Back className="fs-4 me-2" />
-                    <span className="fs-5">Diagnosi</span>
-                </li>
-                <li className="d-flex align-items-center">
-                    <Clipboard2Check className="fs-4 me-2" />
-                    <span className="fs-5">Esami</span>
-                </li>   
-            </ul>
+            <div className="border colorDiv rounded-top-3 p-4 " style={{color:"#074662"}}>Anamnesi</div>
+            <div className="border colorDiv p-4" style={{color:"#074662"}}>Esami</div>
+            <div className="border colorDiv p-4 " style={{color:"#074662"}}>Prescrizioni</div>  
+            <div className="border colorDiv p-4 " style={{color:"#074662"}}>Piano terapeutico</div>
+            <div className="border colorDiv shadow-sm  rounded-bottom-3 p-4 " style={{color:"#074662"}}>Appuntamenti</div>
+
+
+          
+           
            
 
 
@@ -27,4 +22,4 @@ const SideBar = () => {
         </Container>
     );
     }
-export default SideBar;
+export default SideBar; 

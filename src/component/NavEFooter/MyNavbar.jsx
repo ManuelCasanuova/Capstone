@@ -1,60 +1,84 @@
-import React from 'react';
-import { Navbar, Nav, Button, Dropdown, Image, Container } from 'react-bootstrap';
-import { Link, NavLink } from 'react-router';
+import React from "react";
+import { Nav } from "react-bootstrap";
+import { Calendar3, LayoutTextWindowReverse, People, Power } from "react-bootstrap-icons";
+import { Link, useLocation, useNavigate } from "react-router";
 
 const MyNavbar = () => {
+  const token = localStorage.getItem("token");
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  if (!token || location.pathname === "/login") {
+    return null;
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/login");
+  };
+
+  const isActive = (path) => location.pathname === path;
+
   return (
-    <Navbar bg="light" expand="lg" className="shadow-sm py-3">
-      <Container>
-        {/* Logo / Nome */}
-        <Navbar.Brand href="#" className="text-primary fw-bold fs-4">
-          Cartella Clinica
-        </Navbar.Brand>
+    <div
+      className="d-flex flex-column vh-100 p-3 bg-light border-end navbar"
+      style={{ position: "fixed", top: 0, left: 0 }}
+    >
+      <Nav className="flex-column flex-grow-1">
+        <div
+          className={`buttonNav rounded-3 px-2 py-3 mb-3 cursor-pointer d-flex align-items-center justify-content-center ${
+            isActive("/dashboard") ? "bg-primary" : ""
+          }`}
+        >
+          <Link
+            to="/dashboard"
+            className="d-flex justify-content-center align-items-center"
+          >
+            <LayoutTextWindowReverse size={40} color="white" />
+          </Link>
+        </div>
 
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse id="basic-navbar-nav">
+        <div
+          className={`buttonNav rounded-3 px-2 py-3 mb-3 cursor-pointer d-flex align-items-center justify-content-center ${
+            isActive("/pazienti") ? "bg-primary" : ""
+          }`}
+        >
+          <Link
+            to="/pazienti"
+            className="d-flex justify-content-center align-items-center"
+          >
+            <People size={40} color="white" />
+          </Link>
+        </div>
 
+        <div
+          className={`buttonNav rounded-3 px-2 py-3 mb-3 cursor-pointer d-flex align-items-center justify-content-center ${
+            isActive("/prenotazioni") ? "bg-primary" : ""
+          }`}
+        >
+          <Link
+            to="/prenotazioni"
+            className="d-flex justify-content-center align-items-center"
+          >
+            <Calendar3 size={40} color="white" />
+          </Link>
+        </div>
 
-          
-
-         
-
-         
-          <Nav className="me-auto d-flex align-items-center"> 
-          <NavLink to="/" className={`text-center nav-link ${location.pathname === "/" ? "navActive" : ""}`}>
-            <p>Dashboard</p>
-          </NavLink>
-          <NavLink to="/pazienti" className={`text-center nav-link ${location.pathname === "/" ? "navActive" : ""}`}>
-            <p>Pazienti</p>
-          </NavLink>
-          
-            
-          </Nav>
-          {/* Icona notifiche */}
-          <Button variant="link" className="position-relative me-3 p-0">
-              <i className="bi bi-bell fs-5 text-secondary"></i>
-              <span className="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"></span>
-            </Button>
-
-            {/* Avatar + Dropdown */}
-            <Dropdown align="end">
-              <Dropdown.Toggle variant="light" id="dropdown-basic" className="d-flex align-items-center border-0">
-                <Image
-                  src="https://via.placeholder.com/40"
-                  roundedCircle
-                  width="40"
-                  height="40"
-                />
-              </Dropdown.Toggle>
-
-              <Dropdown.Menu>
-                <Dropdown.Item as={Link} to= "/profilo">Profilo</Dropdown.Item>
-                <Dropdown.Item href="#/logout">Logout</Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
-        </Navbar.Collapse>
-      </Container>
-    </Navbar>
+        <div className="mt-auto">
+          <div
+            className="buttonNav rounded-3 px-2 py-3 cursor-pointer d-flex align-items-center justify-content-center"
+            onClick={handleLogout}
+            role="button"
+            tabIndex={0}
+            onKeyPress={(e) => {
+              if (e.key === "Enter") handleLogout();
+            }}
+          >
+            <Power size={40} color="white" />
+          </div>
+        </div>
+      </Nav>
+    </div>
   );
 };
 
