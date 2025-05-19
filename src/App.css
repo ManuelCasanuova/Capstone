@@ -10,6 +10,16 @@ h1, h2, h3, h4, h5, h6, p {
   color: #053961;
 }
 
+.custom-placeholder::placeholder {
+  color: #053961;
+  opacity: 1;
+}
+
+.pagination-text {
+  color: #053961;
+  font-weight: bold;
+}
+
 .login-background {
   background-image: url("./assets/login-bg.png"); /* o "/assets/..." se sta in public */
   background-size: cover;
@@ -134,3 +144,6 @@ h1, h2, h3, h4, h5, h6, p {
   color: white !important;
   
 }
+
+
+
