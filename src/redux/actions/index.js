@@ -6,6 +6,11 @@ const SET_NEWS = "SET_NEWS";
 const SET_UTENTI = "SET_UTENTI";
 const AGGIUNGI_PAZIENTE = "AGGIUNGI_PAZIENTE";
 const AGGIORNA_PAZIENTE = "AGGIORNA_PAZIENTE";
+const SET_APPUNTAMENTI = "SET_APPUNTAMENTI";
+const SET_PAZIENTI_RICERCA = "SET_PAZIENTI_RICERCA";
+const AGGIUNGI_APPUNTAMENTO = "AGGIUNGI_APPUNTAMENTO";
+const ELIMINA_APPUNTAMENTO = "ELIMINA_APPUNTAMENTO";
+const AGGIORNA_APPUNTAMENTO = "AGGIORNA_APPUNTAMENTO";
 
 export{
   SET_UTENTI,
@@ -15,7 +20,12 @@ export{
   LOGOUT,
   SET_NEWS,
   AGGIUNGI_PAZIENTE,
-  AGGIORNA_PAZIENTE}
+  AGGIORNA_PAZIENTE,
+  SET_APPUNTAMENTI,
+  SET_PAZIENTI_RICERCA,
+  AGGIUNGI_APPUNTAMENTO, 
+  ELIMINA_APPUNTAMENTO, 
+  AGGIORNA_APPUNTAMENTO}
 
 
 
@@ -173,7 +183,7 @@ export const updatePaziente = (id, pazienteAggiornato, token) => {
       if (response.ok) {
         const data = await response.json();
 
-        // Aggiorna lo stato Redux con il paziente modificato
+        
         dispatch({ type: 
           AGGIORNA_PAZIENTE, payload: data });
 
@@ -189,6 +199,132 @@ export const updatePaziente = (id, pazienteAggiornato, token) => {
     }
   };
 };
+
+
+
+//APPUNTAMENTI (CRUD)
+
+export const fetchAppuntamenti = (token) => {
+  return async (dispatch) => {
+    try {
+      const response = await fetch(`${apiUrl}/appuntamenti`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) throw new Error("Errore nel recupero degli appuntamenti");
+
+      const data = await response.json();
+
+      
+      dispatch({ type: SET_APPUNTAMENTI, payload: data });
+
+    } catch (error) {
+      console.error("Fetch appuntamenti fallita:", error);
+      
+    }
+  };
+};
+
+
+export const createAppuntamento = (token, appuntamento) => {
+  return async (dispatch) => {
+    const response = await fetch(`${apiUrl}/appuntamenti`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(appuntamento),
+    });
+
+    if (!response.ok) {
+      throw new Error("Errore nella creazione dell'appuntamento");
+    }
+
+    const data = await response.json();
+    dispatch({ type: AGGIUNGI_APPUNTAMENTO, payload: data });
+    return data;
+  };
+};
+
+export const updateAppuntamento = (token, id, appuntamento) => {
+  return async (dispatch) => {
+    const response = await fetch(`${apiUrl}/appuntamenti/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(appuntamento),
+    });
+
+    if (!response.ok) {
+      throw new Error("Errore nell'aggiornamento dell'appuntamento");
+    }
+
+    const data = await response.json();
+    dispatch({ type: AGGIORNA_APPUNTAMENTO, payload: data });
+    return data;
+  };
+};
+
+export const deleteAppuntamento = (token, id) => {
+  return async (dispatch) => {
+    const response = await fetch(`${apiUrl}/appuntamenti/${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Errore durante l'eliminazione dell'appuntamento");
+    }
+
+    dispatch({ type: ELIMINA_APPUNTAMENTO, payload: id });
+  };
+};
+
+export const fetchPazientiByNomeCognome = (token, nome, cognome) => {
+  return async (dispatch) => {
+    try {
+      const queryString = `?nome=${encodeURIComponent(nome)}&cognome=${encodeURIComponent(cognome)}`;
+
+      const response = await fetch(`${apiUrl}/pazienti/search${queryString}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Errore nella ricerca dei pazienti");
+      }
+
+      const data = await response.json();
+
+      dispatch({
+        type: SET_PAZIENTI_RICERCA,
+        payload: data,
+      });
+
+      return data;
+    } catch (error) {
+      console.error("Errore fetch pazienti by nome e cognome:", error);
+      throw error;
+    }
+  };
+};
+
+
+
+
+
 
 
 

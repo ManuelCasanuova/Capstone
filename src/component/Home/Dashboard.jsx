@@ -1,13 +1,11 @@
 import { Col, Container, Image, Row } from "react-bootstrap";
-import PatientDashboard from "../Paziente/PatientDashboard";
-import WelcomeStudio from "./WelcomeStudio";
-import PaginaProfilo from "../Profilo/Profilo";
 import PrimoPiano from "./PrimoPiano";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { useEffect } from "react";
-import { fetchUserDetails } from "../../redux/actions";
+import { fetchUserDetails, LOGOUT } from "../../redux/actions";
 import logo from "../../assets/Logo.png";
+import AppuntamentiOggi from "../Appuntamenti/AppuntamentiOggi";
 
 
 
@@ -55,8 +53,8 @@ const Dashboard = () => {
 
         <Row xs={2}>
           <Col>
-            <PatientDashboard />
-            <WelcomeStudio />
+            
+            <AppuntamentiOggi />
             
           </Col>
 

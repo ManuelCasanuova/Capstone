@@ -11,6 +11,7 @@ import { Container } from 'react-bootstrap'
 import PaginaProfilo from './component/Profilo/PaginaProfilo'
 import MyLogin from './component/access/MyLogin'
 import AccessPage from './component/access/AccessPage'
+import Appuntamenti from './component/Appuntamenti/Appuntamenti'
 
 
 function App() {
@@ -38,6 +39,9 @@ function App() {
           {/* PAGINA PROFILO */}
           
           <Route path= '/paginaProfilo/:id' element={<Container className='pt-3'><PaginaProfilo /></Container>} />
+
+          <Route path='/appuntamenti' element={<Appuntamenti />} />
+         
         
 
 

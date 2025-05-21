@@ -53,11 +53,11 @@ const MyNavbar = () => {
 
         <div
           className={`buttonNav rounded-3 px-2 py-3 mb-3 cursor-pointer d-flex align-items-center justify-content-center ${
-            isActive("/prenotazioni") ? "bg-primary" : ""
+            isActive("/appuntamenti") ? "bg-primary" : ""
           }`}
         >
           <Link
-            to="/prenotazioni"
+            to="/appuntamenti"
             className="d-flex justify-content-center align-items-center"
           >
             <Calendar3 size={40} color="white" />
@@ -66,16 +66,11 @@ const MyNavbar = () => {
 
         <div className="mt-auto">
           <div
-            className="buttonNav rounded-3 px-2 py-3 cursor-pointer d-flex align-items-center justify-content-center"
-            onClick={handleLogout}
-            role="button"
-            tabIndex={0}
-            onKeyPress={(e) => {
-              if (e.key === "Enter") handleLogout();
-            }}
-          >
-            <Power size={40} color="white" />
-          </div>
+  className="buttonNav rounded-3 px-2 py-3 cursor-pointer d-flex align-items-center justify-content-center"
+  onClick={handleLogout}
+>
+  <Power size={40} color="white" />
+</div>
         </div>
       </Nav>
     </div>

@@ -100,8 +100,8 @@ const ModaleModificaPaziente = ({ show, onHide, utente, onSave }) => {
               required
             >
               <option value="">Seleziona...</option>
-              <option value="MASCHILE">Maschile</option>
-              <option value="FEMMINILE">Femminile</option>
+              <option value="MASCHILE">Maschio</option>
+              <option value="FEMMINILE">Femmina</option>
             </Form.Select>
           </Form.Group>
 

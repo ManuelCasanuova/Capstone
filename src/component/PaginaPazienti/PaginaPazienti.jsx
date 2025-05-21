@@ -52,7 +52,15 @@ const PaginaPazienti = () => {
     if (result.success) {
       setShowModal(false);
       setListaFiltrata(null);
-      dispatch(fetchPazienti(token, paginaCorrente));
+
+      const response = await dispatch(fetchPazienti(token, paginaCorrente));
+      if (response?.payload?.totalPages !== undefined) {
+        setTotalePagine(response.payload.totalPages);
+      }
+
+      if (utentiRedux.length >= 10 && paginaCorrente === totalePagine - 1) {
+        setPaginaCorrente((prev) => prev + 1);
+      }
     } else {
       alert("Errore nel salvataggio del paziente");
     }
@@ -110,10 +118,9 @@ const PaginaPazienti = () => {
               value={ricercaNome}
               onChange={(e) => setRicercaNome(e.target.value)}
               size="sm"
-              className="custom-placeholder"
             />
             <Button type="submit" size="sm" className="p-2 border bg-white">
-              <Search color="#053961" style={{ filter: "drop-shadow(0 0 1px #053961)", fontWeight: "bold" }} />
+              <Search color="#053961" />
             </Button>
           </InputGroup>
         </Form>
@@ -212,12 +219,10 @@ const PaginaPazienti = () => {
                               roundedCircle
                               style={{ width: "40px", height: "40px", objectFit: "cover", marginRight: "12px" }}
                             />
-                            <span>
-                              <h5>{utente.cognome}</h5>
-                            </span>{" "}
-                            <span>
-                              <p>{utente.nome}</p>
-                            </span>
+                            <div>
+                              <h5 className="mb-0">{utente.cognome}</h5>
+                              <p className="mb-0 text-muted small">{utente.nome}</p>
+                            </div>
                           </div>
 
                           <Link
@@ -242,9 +247,3 @@ const PaginaPazienti = () => {
 };
 
 export default PaginaPazienti;
-
-
-
-
-
-

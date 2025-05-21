@@ -146,4 +146,62 @@ h1, h2, h3, h4, h5, h6, p {
 }
 
 
+/*CALENDARIO*/
+
+.react-calendar__tile {
+  position: relative;
+}
+
+/* Aumenta dimensione del calendario */
+.react-calendar {
+  width: 700px !important; 
+  font-size: 1.2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+  border: 1px solid #ccc;
+  margin: auto;
+}
+
+/* Celle delle date */
+.react-calendar__tile {
+  height: 80px;
+  padding: 15px 10px !important;
+  font-weight: 600;
+  border-radius: 6px !important;
+  transition: background-color 0.3s ease;
+}
+
+/* Hover sulle date */
+.react-calendar__tile:hover {
+  background-color: #2eb0a0 !important; /* verde */
+  color: white !important;
+}
+
+/* Data selezionata */
+.react-calendar__tile--active {
+  background: #053961 !important; /* blu scuro */
+  color: white !important;
+  border-radius: 8px !important;
+}
+
+/* Evidenziare date con appuntamenti */
+.react-calendar__tile .badge {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  background-color: #ff0000 !important;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  padding: 0;
+}
+
+/* Titoli mese e giorni */
+.react-calendar__navigation button {
+  color: #053961;
+  font-weight: 700;
+  min-width: 44px;
+  background: transparent;
+  border: none;
+}
 
