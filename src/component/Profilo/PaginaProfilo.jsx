@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import logo from "../../assets/Logo.png";
 
 const PaginaProfilo = () => {
-  const { id } = useParams(); // destrutturo direttamente
+  const { id } = useParams(); 
   const [utente, setUtente] = useState(null);
   const [loading, setLoading] = useState(true);
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -61,7 +61,7 @@ const PaginaProfilo = () => {
         </Col>
 
         <Col xs={5} className="d-flex justify-content-center">
-          <SideBar />
+         {utente && <SideBar pazienteId={utente.id} />}
         </Col>
       </Row>
     </Container>

@@ -48,31 +48,38 @@ export const fetchNews = () => {
   };
 
 
-  export const fetchLogin = (username, password) => {
-    return async (dispatch) => {
-      try {
-        const response = await fetch(apiUrl + "/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ username, password }),
-        });
-  
-        const data = await response.json();
-  
-        if (response.ok && data?.token) {
-          dispatch({ type: LOGIN_SUCCESS, payload: data });
-          localStorage.setItem("token", data.token);
+  export const fetchLogin = (username, password, navigate) => {
+  return async (dispatch) => {
+    try {
+      const response = await fetch(apiUrl + "/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data?.token) {
+        dispatch({ type: LOGIN_SUCCESS, payload: data });
+        localStorage.setItem("token", data.token);
+
+     
+        if (data.changePasswordRequired) {
+          navigate("/cambio-password");
         } else {
-          dispatch({ type: LOGIN_FAILURE, payload: data });
+          navigate("/dashboard");
         }
-      } catch (error) {
-        console.error("Errore nel login:", error);
-        dispatch({ type: LOGIN_FAILURE, payload: { error: "Errore di rete" } });
+      } else {
+        dispatch({ type: LOGIN_FAILURE, payload: data });
       }
-    };
+    } catch (error) {
+      console.error("Errore nel login:", error);
+      dispatch({ type: LOGIN_FAILURE, payload: { error: "Errore di rete" } });
+    }
   };
+};
 
 
   export const fetchUserDetails = (token) => {
@@ -90,6 +97,7 @@ export const fetchNews = () => {
   
         if (response.ok && data) {
           dispatch({ type: SET_USER, payload: data });
+            console.log("SONO DATA", data);
         } else {
           localStorage.removeItem("token");
           dispatch({ type: LOGOUT });
@@ -100,6 +108,7 @@ export const fetchNews = () => {
         dispatch({ type: LOGOUT });
       }
     };
+  
   };
 
 
@@ -139,13 +148,13 @@ export const fetchPazienti = (token, page = 0) => {
 export const postNuovoPaziente = (paziente, token) => {
   return async (dispatch) => {
     try {
-      const response = await fetch(`${apiUrl}/pazienti`, {
+      const response = await fetch(`${apiUrl}/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(paziente),
+        body: JSON.stringify(paziente), 
       });
 
       if (response.ok) {
@@ -166,6 +175,7 @@ export const postNuovoPaziente = (paziente, token) => {
     }
   };
 };
+
 
 
 export const updatePaziente = (id, pazienteAggiornato, token) => {

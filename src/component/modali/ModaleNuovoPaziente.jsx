@@ -15,8 +15,7 @@ const ModaleNuovoPaziente = ({ show, onHide, onSubmit }) => {
     domicilio: "",
     telefonoCellulare: "",
     telefonoFisso: "",
-    esenzione: "",
-    password: "Password123!" // password predefinita
+    esenzione: ""
   });
 
   const handleChange = (e) => {
@@ -26,8 +25,14 @@ const ModaleNuovoPaziente = ({ show, onHide, onSubmit }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(formData);
-    console.log("Dati paziente da inviare:", formData);
+
+    const payload = {
+      pazienteRequest: formData,
+      password: "Password123!" // password predefinita non visibile nel form
+    };
+
+    onSubmit(payload);
+    console.log("Payload da inviare:", payload);
     onHide();
   };
 

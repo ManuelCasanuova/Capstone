@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from "react";
-import { Button, Image } from "react-bootstrap";
+import React, { useState } from "react";
+import { Button, Image, InputGroup } from "react-bootstrap";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
 import { fetchLogin } from "../../redux/actions";
+import { Eye, EyeSlash } from "react-bootstrap-icons";
 import logo from "../../assets/Logo.png";
-
 
 function MyLogin() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const [token, setToken] = useState(null);
   const [formData, setFormData] = useState({ username: "", password: "" });
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
 
   const handleChange = (e) => {
@@ -19,49 +19,33 @@ function MyLogin() {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-
-    dispatch(fetchLogin(formData.username, formData.password));
-
-    setTimeout(() => {
-      const myToken = localStorage.getItem("token");
-      if (myToken) {
-        setToken(myToken);
-      } else {
-        setError("Token not found");
-      }
-    }, 1000);
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
   };
 
-  useEffect(() => {
-    if (token) {
-      navigate("/dashboard");
-    }
-  }, [token, navigate]);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setError("");
+    dispatch(fetchLogin(formData.username, formData.password, navigate));
+  };
 
   return (
     <div className="login-background">
-      {/* Logo in alto a sinistra */}
       <div className="logo-top-left">
         <Image src={logo} alt="Logo" fluid style={{ width: "160px" }} />
       </div>
-  
-      {/* Contenitore con slogan + login affiancati */}
+
       <div className="login-content-wrapper">
-        {/* Slogan a sinistra */}
         <div className="slogan-box">
           <h3 className="slogan-text">
             Tecnologia al servizio della cura,<br />per medici e pazienti.
           </h3>
         </div>
-  
-        {/* Form a destra */}
+
         <div className="login-box">
           <h2 className="text-center mb-4">Accedi</h2>
           {error && <p className="text-danger text-center">{error}</p>}
-  
+
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
               <label htmlFor="username" className="form-label">Username</label>
@@ -75,20 +59,25 @@ function MyLogin() {
                 required
               />
             </div>
-  
+
             <div className="mb-4">
               <label htmlFor="password" className="form-label">Password</label>
-              <input
-                id="password"
-                className="form-control"
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                required
-              />
+              <InputGroup>
+                <input
+                  id="password"
+                  className="form-control"
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                />
+                <Button variant="outline-secondary" onClick={togglePasswordVisibility}>
+                  {showPassword ? <EyeSlash /> : <Eye />}
+                </Button>
+              </InputGroup>
             </div>
-  
+
             <div className="d-grid">
               <Button type="submit" variant="success" size="lg">
                 Login

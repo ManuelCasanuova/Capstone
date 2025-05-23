@@ -12,6 +12,8 @@ import PaginaProfilo from './component/Profilo/PaginaProfilo'
 import MyLogin from './component/access/MyLogin'
 import AccessPage from './component/access/AccessPage'
 import Appuntamenti from './component/Appuntamenti/Appuntamenti'
+import CambioPassword from './component/access/CambioPassword'
+import AppuntamentiPaziente from './component/Appuntamenti/AppuntamentiPaziente'
 
 
 function App() {
@@ -29,10 +31,14 @@ function App() {
           {/* PAGINA LOGIN */}
           <Route path="/login" element={<MyLogin />}/>
 
+          <Route path="/cambio-password" element={<CambioPassword />} />
+
           <Route path="/dashboard" element={<Dashboard />} />
 
           {/* PAGINA PAZIENTI */}
           <Route path='/pazienti' element={<PaginaPazienti />} />
+
+          <Route path="/appuntamenti/:id" element={<AppuntamentiPaziente />} />
 
          
 

@@ -47,24 +47,45 @@ const PaginaPazienti = () => {
     setMostraComponente(tipo);
   };
 
-  const handleSalvaPaziente = async (nuovoPaziente) => {
-    const result = await dispatch(postNuovoPaziente(nuovoPaziente, token));
-    if (result.success) {
-      setShowModal(false);
-      setListaFiltrata(null);
-
-      const response = await dispatch(fetchPazienti(token, paginaCorrente));
-      if (response?.payload?.totalPages !== undefined) {
-        setTotalePagine(response.payload.totalPages);
-      }
-
-      if (utentiRedux.length >= 10 && paginaCorrente === totalePagine - 1) {
-        setPaginaCorrente((prev) => prev + 1);
-      }
-    } else {
-      alert("Errore nel salvataggio del paziente");
-    }
+const handleSalvaPaziente = async (nuovoPaziente) => {
+  
+  const payloadSanificato = {
+    pazienteRequest: { ...nuovoPaziente.pazienteRequest },
+    password: nuovoPaziente.password,
   };
+
+  delete payloadSanificato.pazienteRequest.avatar;
+  delete payloadSanificato.pazienteRequest.id;
+
+ 
+  if (!payloadSanificato.password || payloadSanificato.password.trim() === "") {
+    delete payloadSanificato.password;
+  }
+
+
+  console.log("Payload finale inviato:", payloadSanificato);
+
+
+  const result = await dispatch(postNuovoPaziente(payloadSanificato, token));
+
+  if (result.success) {
+    setShowModal(false);
+    setListaFiltrata(null);
+
+    const response = await dispatch(fetchPazienti(token, paginaCorrente));
+    if (response?.payload?.totalPages !== undefined) {
+      setTotalePagine(response.payload.totalPages);
+    }
+
+    if (utentiRedux.length >= 10 && paginaCorrente === totalePagine - 1) {
+      setPaginaCorrente((prev) => prev + 1);
+    }
+  } else {
+    alert("Errore nel salvataggio del paziente");
+  }
+};
+
+
 
   const handleRicerca = async (e) => {
     e.preventDefault();
