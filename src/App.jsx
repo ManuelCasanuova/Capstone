@@ -16,6 +16,7 @@ import CambioPassword from './component/access/CambioPassword'
 import AppuntamentiPaziente from './component/Appuntamenti/AppuntamentiPaziente'
 
 
+
 function App() {
  
 
@@ -28,12 +29,16 @@ function App() {
 
       
           <Route path="/" element={<AccessPage />} />
+
+
           {/* PAGINA LOGIN */}
           <Route path="/login" element={<MyLogin />}/>
 
           <Route path="/cambio-password" element={<CambioPassword />} />
 
           <Route path="/dashboard" element={<Dashboard />} />
+
+        
 
           {/* PAGINA PAZIENTI */}
           <Route path='/pazienti' element={<PaginaPazienti />} />

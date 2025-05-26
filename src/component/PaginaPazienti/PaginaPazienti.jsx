@@ -268,3 +268,7 @@ const handleSalvaPaziente = async (nuovoPaziente) => {
 };
 
 export default PaginaPazienti;
+
+
+
+

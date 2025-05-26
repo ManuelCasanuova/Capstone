@@ -7,16 +7,27 @@ import {
   fetchPazientiByNomeCognome,
 } from "../../redux/actions";
 
-const ModaleNuovoAppuntamento = ({ show, onHide, data, orariDisponibili, token, appuntamentoDaModificare }) => {
+const ModaleNuovoAppuntamento = ({
+  show,
+  onHide,
+  data,
+  orariDisponibili,
+  token,
+  appuntamentoDaModificare,
+  isPaziente,
+  pazienteId,
+  pazienteNome,
+  pazienteCognome,
+}) => {
   const dispatch = useDispatch();
 
-  const [nomePaziente, setNomePaziente] = useState("");
-  const [cognomePaziente, setCognomePaziente] = useState("");
+  const [nome, setNome] = useState("");
+  const [cognome, setCognome] = useState("");
   const [pazientiTrovati, setPazientiTrovati] = useState([]);
   const [pazienteSelezionato, setPazienteSelezionato] = useState(null);
   const [orarioSelezionato, setOrarioSelezionato] = useState("");
   const [motivo, setMotivo] = useState("");
-  const [messaggioSuccesso, setMessaggioSuccesso] = useState(null);
+  const [successo, setSuccesso] = useState(null);
   const [errore, setErrore] = useState(null);
 
   useEffect(() => {
@@ -26,121 +37,171 @@ const ModaleNuovoAppuntamento = ({ show, onHide, data, orariDisponibili, token, 
         .toTimeString()
         .slice(0, 5);
       setOrarioSelezionato(orario);
-      setNomePaziente(appuntamentoDaModificare.nome || "");
-      setCognomePaziente(appuntamentoDaModificare.cognome || "");
+
+      setNome(appuntamentoDaModificare.nome || "");
+      setCognome(appuntamentoDaModificare.cognome || "");
       setPazienteSelezionato({ id: appuntamentoDaModificare.pazienteId });
+    } else if (pazienteId) {
+      setPazienteSelezionato({ id: pazienteId });
+      setNome(pazienteNome || "");
+      setCognome(pazienteCognome || "");
+      setMotivo("");
+      setOrarioSelezionato("");
+      setPazientiTrovati([]);
+      setSuccesso(null);
+      setErrore(null);
     } else {
       setMotivo("");
       setOrarioSelezionato("");
-      setNomePaziente("");
-      setCognomePaziente("");
+      setNome("");
+      setCognome("");
       setPazientiTrovati([]);
       setPazienteSelezionato(null);
+      setSuccesso(null);
+      setErrore(null);
     }
-  }, [appuntamentoDaModificare]);
+  }, [appuntamentoDaModificare, pazienteId, pazienteNome, pazienteCognome]);
 
   const handleCercaPazienti = async (e) => {
     e.preventDefault();
-    if (!nomePaziente.trim() && !cognomePaziente.trim()) {
+    if (!nome.trim() && !cognome.trim()) {
       setPazientiTrovati([]);
       return;
     }
     try {
-      const results = await dispatch(
-        fetchPazientiByNomeCognome(token, nomePaziente.trim(), cognomePaziente.trim())
+      const risultati = await dispatch(
+        fetchPazientiByNomeCognome(token, nome.trim(), cognome.trim())
       );
-      setPazientiTrovati(results);
-      if (appuntamentoDaModificare) {
-        const selezionato = results.find(p => p.id === appuntamentoDaModificare.pazienteId);
-        if (selezionato) setPazienteSelezionato(selezionato);
-      }
+      setPazientiTrovati(risultati);
     } catch {
       setPazientiTrovati([]);
     }
   };
 
+  const creaDataOraLocal = (dataDate, orarioStr) => {
+    if (!dataDate || !orarioStr) return null;
+
+    const [hh, mm] = orarioStr.split(":").map(Number);
+    const year = dataDate.getFullYear();
+    const month = String(dataDate.getMonth() + 1).padStart(2, "0");
+    const day = String(dataDate.getDate()).padStart(2, "0");
+    const hours = String(hh).padStart(2, "0");
+    const minutes = String(mm).padStart(2, "0");
+
+    return `${year}-${month}-${day}T${hours}:${minutes}:00`;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!orarioSelezionato || !motivo || !pazienteSelezionato) {
-      setErrore("Compila tutti i campi e seleziona un paziente.");
-      setMessaggioSuccesso(null);
+
+    if (!data) {
+      setErrore("Seleziona una data valida.");
+      setSuccesso(null);
       return;
     }
 
-    const [hh, mm] = orarioSelezionato.split(":");
-    const dataOra = new Date(data);
-    dataOra.setHours(parseInt(hh, 10));
-    dataOra.setMinutes(parseInt(mm, 10));
-    dataOra.setSeconds(0);
-    dataOra.setMilliseconds(0);
+    if (!orarioSelezionato || !motivo || !pazienteSelezionato?.id) {
+      setErrore("Compila tutti i campi e seleziona un paziente.");
+      setSuccesso(null);
+      return;
+    }
 
-    const appuntamentoPayload = {
-      dataOraAppuntamento: dataOra.toISOString(),
+    const dataOraLocal = creaDataOraLocal(data, orarioSelezionato);
+    if (!dataOraLocal) {
+      setErrore("Data o orario non validi.");
+      setSuccesso(null);
+      return;
+    }
+
+    const payload = {
+      dataOraAppuntamento: dataOraLocal,
       motivoRichiesta: motivo,
       pazienteId: pazienteSelezionato.id,
     };
 
     try {
       if (appuntamentoDaModificare) {
-        await dispatch(updateAppuntamento(token, appuntamentoDaModificare.id, appuntamentoPayload));
-        setMessaggioSuccesso("Appuntamento aggiornato con successo!");
+        await dispatch(
+          updateAppuntamento(token, appuntamentoDaModificare.id, payload)
+        );
+        setSuccesso("Appuntamento aggiornato con successo!");
       } else {
-        await dispatch(createAppuntamento(token, appuntamentoPayload));
-        setMessaggioSuccesso("Appuntamento prenotato con successo!");
+        await dispatch(createAppuntamento(token, payload));
+        setSuccesso("Appuntamento prenotato con successo!");
       }
       setErrore(null);
       setTimeout(() => {
         onHide();
-        setMessaggioSuccesso(null);
+        setSuccesso(null);
       }, 1000);
     } catch {
-      setErrore("Errore durante la prenotazione. Riprova.");
-      setMessaggioSuccesso(null);
+      setErrore("Errore durante la prenotazione.");
+      setSuccesso(null);
     }
   };
 
   return (
     <Modal show={show} onHide={onHide} centered>
       <Modal.Header closeButton>
-        <Modal.Title>{appuntamentoDaModificare ? "Modifica appuntamento" : "Nuovo appuntamento"}</Modal.Title>
+        <Modal.Title>
+          {appuntamentoDaModificare ? "Modifica appuntamento" : "Nuovo appuntamento"}
+        </Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <Form onSubmit={handleCercaPazienti} className="mb-3 d-flex gap-2">
-          <Form.Control
-            type="text"
-            placeholder="Nome paziente"
-            value={nomePaziente}
-            onChange={(e) => setNomePaziente(e.target.value)}
-          />
-          <Form.Control
-            type="text"
-            placeholder="Cognome paziente"
-            value={cognomePaziente}
-            onChange={(e) => setCognomePaziente(e.target.value)}
-          />
-          <Button type="submit">Cerca</Button>
-        </Form>
+        {pazienteSelezionato ? (
+          <>
+            <Form.Group className="mb-3">
+              <Form.Label>Nome paziente</Form.Label>
+              <Form.Control type="text" value={nome} disabled />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Cognome paziente</Form.Label>
+              <Form.Control type="text" value={cognome} disabled />
+            </Form.Group>
+          </>
+        ) : (
+          !isPaziente && !appuntamentoDaModificare && (
+            <>
+              <Form onSubmit={handleCercaPazienti} className="mb-3 d-flex gap-2">
+                <Form.Control
+                  type="text"
+                  placeholder="Nome paziente"
+                  value={nome}
+                  onChange={(e) => setNome(e.target.value)}
+                />
+                <Form.Control
+                  type="text"
+                  placeholder="Cognome paziente"
+                  value={cognome}
+                  onChange={(e) => setCognome(e.target.value)}
+                />
+                <Button type="submit">Cerca</Button>
+              </Form>
 
-        {pazientiTrovati.length > 0 && (
-          <Form.Group className="mb-3">
-            <Form.Label>Seleziona paziente</Form.Label>
-            <Form.Select
-              value={pazienteSelezionato ? pazienteSelezionato.id : ""}
-              onChange={(e) => {
-                const id = parseInt(e.target.value);
-                const selezionato = pazientiTrovati.find(p => p.id === id);
-                setPazienteSelezionato(selezionato || null);
-              }}
-              required
-            >
-              <option value="">Seleziona...</option>
-              {pazientiTrovati.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.nome} {p.cognome} ({p.email})
-                </option>
-              ))}
-            </Form.Select>
-          </Form.Group>
+              {pazientiTrovati.length > 0 && (
+                <Form.Group className="mb-3">
+                  <Form.Label>Seleziona paziente</Form.Label>
+                  <Form.Select
+                    value={pazienteSelezionato?.id || ""}
+                    onChange={(e) => {
+                      const selezionato = pazientiTrovati.find(
+                        (p) => p.id === parseInt(e.target.value)
+                      );
+                      setPazienteSelezionato(selezionato || null);
+                    }}
+                    required
+                  >
+                    <option value="">Seleziona...</option>
+                    {pazientiTrovati.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.nome} {p.cognome} ({p.email})
+                      </option>
+                    ))}
+                  </Form.Select>
+                </Form.Group>
+              )}
+            </>
+          )
         )}
 
         <Form onSubmit={handleSubmit}>
@@ -151,7 +212,7 @@ const ModaleNuovoAppuntamento = ({ show, onHide, data, orariDisponibili, token, 
               onChange={(e) => setOrarioSelezionato(e.target.value)}
               required
             >
-              <option value="">Seleziona l'orario</option>
+              <option value=""> Seleziona orario </option>
               {orariDisponibili.map((orario) => (
                 <option key={orario} value={orario}>
                   {orario}
@@ -169,7 +230,7 @@ const ModaleNuovoAppuntamento = ({ show, onHide, data, orariDisponibili, token, 
               type="text"
               value={motivo}
               onChange={(e) => setMotivo(e.target.value)}
-              placeholder="Descrivi il motivo"
+              placeholder="Es. Visita di controllo"
               required
             />
           </Form.Group>
@@ -179,7 +240,7 @@ const ModaleNuovoAppuntamento = ({ show, onHide, data, orariDisponibili, token, 
           </Button>
         </Form>
 
-        {messaggioSuccesso && <p className="text-success mt-3">{messaggioSuccesso}</p>}
+        {successo && <p className="text-success mt-3">{successo}</p>}
         {errore && <p className="text-danger mt-3">{errore}</p>}
       </Modal.Body>
     </Modal>
@@ -187,3 +248,12 @@ const ModaleNuovoAppuntamento = ({ show, onHide, data, orariDisponibili, token, 
 };
 
 export default ModaleNuovoAppuntamento;
+
+
+
+
+
+
+
+
+

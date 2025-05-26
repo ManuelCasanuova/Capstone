@@ -32,8 +32,8 @@ const AppuntamentiOggi = () => {
   }, [appuntamentiRedux]);
 
   return (
-    <Container className="mt-4">
-      <h4>Appuntamenti di oggi</h4>
+    <Container >
+      <h4 className="mb-3">Appuntamenti di oggi</h4>
       {appuntamentiOggi.length > 0 ? (
         <ListGroup>
           {appuntamentiOggi.map((app) => (

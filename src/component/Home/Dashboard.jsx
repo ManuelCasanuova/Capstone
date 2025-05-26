@@ -7,6 +7,7 @@ import { fetchUserDetails, LOGOUT } from "../../redux/actions";
 import logo from "../../assets/Logo.png";
 import AppuntamentiOggi from "../Appuntamenti/AppuntamentiOggi";
 import StatisticheAppuntamenti from "./StatisticheAppuntamenti";
+import GestioneStudio from "../studio/GestioneStudio";
 
 
 
@@ -40,7 +41,7 @@ const Dashboard = () => {
 
         <div className="mt-5">
           <h2>Dashboard</h2>
-          <p>Benvenuto {user.nome}</p>
+          <p>Benvenuto {user.cognome} {user.nome}</p>
           
        </div>  
 
@@ -55,12 +56,13 @@ const Dashboard = () => {
         <Row xs={2}>
           <Col>
             
-            <AppuntamentiOggi />
-            <StatisticheAppuntamenti />
+           
+            <GestioneStudio />
             
           </Col>
 
           <Col> 
+           <AppuntamentiOggi />
           <PrimoPiano />
           </Col>
 

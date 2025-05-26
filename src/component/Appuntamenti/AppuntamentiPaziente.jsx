@@ -1,20 +1,20 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router";
-import { Container, Spinner, Alert, ListGroup } from "react-bootstrap";
+import { useParams, useNavigate } from "react-router";
+import { Container, Spinner, Alert, ListGroup, Button } from "react-bootstrap";
 
 const AppuntamentiPaziente = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [appuntamenti, setAppuntamenti] = useState([]);
   const [loading, setLoading] = useState(true);
   const [errore, setErrore] = useState(null);
+  const [pazienteInfo, setPazienteInfo] = useState({ nome: "", cognome: "" });
 
   useEffect(() => {
     const token = localStorage.getItem("token");
 
     fetch(`http://localhost:8080/appuntamenti/paziente/${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => (res.ok ? res.json() : Promise.reject(res.statusText)))
       .then((data) => {
@@ -25,6 +25,15 @@ const AppuntamentiPaziente = () => {
         setErrore(err);
         setLoading(false);
       });
+
+    fetch(`http://localhost:8080/pazienti/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => (res.ok ? res.json() : Promise.reject(res.statusText)))
+      .then((data) => {
+        setPazienteInfo({ nome: data.nome, cognome: data.cognome });
+      })
+      .catch(() => setPazienteInfo({ nome: "", cognome: "" }));
   }, [id]);
 
   const formatDateTime = (isoString) => {
@@ -47,11 +56,24 @@ const AppuntamentiPaziente = () => {
   return (
     <Container className="mt-4">
       <h3>Appuntamenti del Paziente</h3>
+      <Button
+        variant="primary"
+        className="mb-3"
+        onClick={() =>
+          navigate("/appuntamenti", {
+            state: {
+              paziente: { id, nome: pazienteInfo.nome, cognome: pazienteInfo.cognome },
+            },
+          })
+        }
+      >
+        Aggiungi Appuntamento
+      </Button>
       <ListGroup>
         {appuntamenti.map((app) => (
           <ListGroup.Item key={app.id} className="d-flex justify-content-between">
-           <span>{formatDateTime(app.dataOraAppuntamento)}</span>
-           <span>{app.motivoRichiesta}</span>
+            <span>{formatDateTime(app.dataOraAppuntamento)}</span>
+            <span>{app.motivoRichiesta}</span>
           </ListGroup.Item>
         ))}
       </ListGroup>
@@ -60,4 +82,9 @@ const AppuntamentiPaziente = () => {
 };
 
 export default AppuntamentiPaziente;
+
+
+
+
+
 

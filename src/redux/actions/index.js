@@ -33,7 +33,7 @@ const apiUrl = import.meta.env.VITE_API_URL;
 
 export const fetchNews = () => {
     return (dispatch) => {
-      fetch("http://api.mediastack.com/v1/news?access_key=dd9e12986a01ec71a4448b94a76cf048&sources=it   jjjj ")
+      fetch("http://api.mediastack.com/v1/news?access_key=dd9e12986a01ec71a4448b94a76cf048&sources=it")
         .then((resp) => resp.json())
         .then((news) => {
           if (news) {
