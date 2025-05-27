@@ -14,6 +14,7 @@ import logo from "../../assets/Logo.png";
 import { useDispatch, useSelector } from "react-redux";
 import { deleteAppuntamento, fetchAppuntamenti } from "../../redux/actions";
 import ModaleNuovoAppuntamento from "../modali/ModaleNuovoAppuntamento";
+import ModaleConferma from "../modali/ModaleConferma";
 import { useNavigate, useLocation } from "react-router";
 
 const Appuntamenti = () => {
@@ -31,25 +32,18 @@ const Appuntamenti = () => {
     (state) => state.appuntamenti.appuntamenti || []
   );
 
-  
   const pazienteDaPassaggio = location.state?.paziente || null;
-
-  console.log("LOCATION STATE:", location.state);
-console.log("PAZIENTE DA PASSAGGIO:", pazienteDaPassaggio);
-
 
   const [pazienteSelezionato, setPazienteSelezionato] = useState(null);
 
   useEffect(() => {
     if (isPaziente) {
-    
       setPazienteSelezionato({
         id: pazienteIdRedux,
         nome: user?.nome || "",
         cognome: user?.cognome || "",
       });
     } else if (pazienteDaPassaggio) {
-   
       setPazienteSelezionato(pazienteDaPassaggio);
     } else {
       setPazienteSelezionato(null);
@@ -63,6 +57,8 @@ console.log("PAZIENTE DA PASSAGGIO:", pazienteDaPassaggio);
   const [showPrenotaModal, setShowPrenotaModal] = useState(false);
   const [appuntamentoDaModificare, setAppuntamentoDaModificare] = useState(null);
   const [showAlertChiuso, setShowAlertChiuso] = useState(false);
+  const [showConferma, setShowConferma] = useState(false);
+  const [idDaEliminare, setIdDaEliminare] = useState(null);
 
   useEffect(() => {
     if (token && appuntamentiRedux.length === 0) {
@@ -154,10 +150,13 @@ console.log("PAZIENTE DA PASSAGGIO:", pazienteDaPassaggio);
     setShowAlertChiuso(disponibili.length === 0);
   }, [dataSelezionata, appuntamentiRedux, isAdmin, pazienteSelezionato, orariStudio]);
 
-  const handleDeleteAppuntamento = async (id) => {
+  const handleConfermaEliminazione = async () => {
     try {
-      await dispatch(deleteAppuntamento(token, id));
+      await dispatch(deleteAppuntamento(token, idDaEliminare));
+      dispatch(fetchAppuntamenti(token));
     } catch {}
+    setShowConferma(false);
+    setIdDaEliminare(null);
   };
 
   const handleModificaAppuntamento = (app) => {
@@ -246,6 +245,11 @@ console.log("PAZIENTE DA PASSAGGIO:", pazienteDaPassaggio);
                 >
                   <div>
                     <div>
+                      {isAdmin && (
+                        <div>
+                          <strong>Paziente:</strong> {app.nome} {app.cognome}
+                        </div>
+                      )}
                       <strong>Orario:</strong>{" "}
                       {new Date(app.dataOraAppuntamento).toLocaleTimeString([], {
                         hour: "2-digit",
@@ -255,11 +259,6 @@ console.log("PAZIENTE DA PASSAGGIO:", pazienteDaPassaggio);
                     <div>
                       <strong>Motivo:</strong> {app.motivoRichiesta}
                     </div>
-                    {isAdmin && (
-                      <div>
-                        <strong>Paziente:</strong> {app.nome} {app.cognome}
-                      </div>
-                    )}
                   </div>
 
                   <div className="d-flex align-items-center gap-2">
@@ -281,7 +280,8 @@ console.log("PAZIENTE DA PASSAGGIO:", pazienteDaPassaggio);
                         title="Cancella appuntamento"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleDeleteAppuntamento(app.id);
+                          setIdDaEliminare(app.id);
+                          setShowConferma(true);
                         }}
                       ></i>
                     )}
@@ -290,17 +290,20 @@ console.log("PAZIENTE DA PASSAGGIO:", pazienteDaPassaggio);
               ))}
             </ListGroup>
           ) : (
-           <p style={{ color: "#2EB0A0" }} className="mt-2">
-  Nessun appuntamento per questo giorno.
-</p>
+            <p style={{ color: "#2EB0A0" }} className="mt-2">
+              Nessun appuntamento per questo giorno.
+            </p>
           )}
 
           {showAlertChiuso && (
             <Alert variant="warning" className="mt-5">
-  <p>Non è più possibile prenotare per questa data, perché lo studio è chiuso
-  o tutti gli appuntamenti sono gia stati prenotati.</p><br/>
-  <p>Per appuntamenti urgenti, vi invitiamo a contattare lo studio.</p>
-</Alert>
+              <p>
+                Non è più possibile prenotare per questa data, perché lo studio è chiuso
+                o tutti gli appuntamenti sono gia stati prenotati.
+              </p>
+              <br />
+              <p>Per appuntamenti urgenti, vi invitiamo a contattare lo studio.</p>
+            </Alert>
           )}
 
           {isPaziente && haPrenotazioneInData ? (
@@ -333,11 +336,22 @@ console.log("PAZIENTE DA PASSAGGIO:", pazienteDaPassaggio);
         pazienteNome={pazienteSelezionato?.nome}
         pazienteCognome={pazienteSelezionato?.cognome}
       />
+
+      <ModaleConferma
+        show={showConferma}
+        onConferma={handleConfermaEliminazione}
+        onClose={() => {
+          setShowConferma(false);
+          setIdDaEliminare(null);
+        }}
+        messaggio="Sei sicuro di voler eliminare questo appuntamento?"
+      />
     </Container>
   );
 };
 
 export default Appuntamenti;
+
 
 
 

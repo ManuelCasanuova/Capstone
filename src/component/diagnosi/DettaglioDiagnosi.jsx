@@ -1,7 +1,37 @@
+import { useState } from "react";
 import { Col, Container, Image, Row } from "react-bootstrap";
 import logo from "../../assets/Logo.png";
+import ModaleModificaDiagnosi from "../modali/ModaleModificaDiagnosi";
+import ModaleConferma from "../modali/ModaleConferma";
 
-function DettaglioDiagnosi({ diagnosi, onBack }) {
+function DettaglioDiagnosi({ diagnosi, onBack, onDeleteSuccess }) {
+  const [showModifica, setShowModifica] = useState(false);
+  const [showConferma, setShowConferma] = useState(false);
+
+  const handleElimina = () => {
+    setShowConferma(true);
+  };
+
+  const confermaEliminazione = () => {
+    const apiUrl = import.meta.env.VITE_API_URL;
+
+    fetch(`${apiUrl}/diagnosi/${diagnosi.id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Errore nell'eliminazione");
+        if (onDeleteSuccess) onDeleteSuccess();
+      })
+      .catch((err) => alert(err.message));
+  };
+
+  const handleModifica = () => {
+    setShowModifica(true);
+  };
+
   if (!diagnosi) return null;
 
   return (
@@ -16,7 +46,20 @@ function DettaglioDiagnosi({ diagnosi, onBack }) {
       <Container>
         <Row>
           <Col xs={12} md={4} className="d-flex">
-            <div className="border rounded shadow-sm p-3 mb-4 d-flex flex-column justify-content-center w-100">
+            <div className="border rounded shadow-sm p-3 mb-4 d-flex flex-column justify-content-center w-100 position-relative">
+              <div className="position-absolute top-0 end-0 p-2 d-flex gap-2">
+                <i
+                  className="bi bi-pencil"
+                  style={{ cursor: "pointer", fontSize: "1.2rem" }}
+                  onClick={handleModifica}
+                ></i>
+                <i
+                  className="bi bi-trash text-danger"
+                  style={{ cursor: "pointer", fontSize: "1.2rem" }}
+                  onClick={handleElimina}
+                ></i>
+              </div>
+
               <p className="mb-3">
                 <strong>Codice CIM10:</strong> {diagnosi.codiceCIM10}
               </p>
@@ -52,11 +95,31 @@ function DettaglioDiagnosi({ diagnosi, onBack }) {
           </Col>
         </Row>
       </Container>
+
+      <ModaleModificaDiagnosi
+        show={showModifica}
+        onHide={() => setShowModifica(false)}
+        diagnosi={diagnosi}
+        onUpdated={() => {
+          setShowModifica(false);
+          onBack();
+        }}
+      />
+
+      <ModaleConferma
+        show={showConferma}
+        onConferma={confermaEliminazione}
+        onClose={() => setShowConferma(false)}
+        messaggio="Sei sicuro di voler eliminare questa diagnosi?"
+      />
     </>
   );
 }
 
 export default DettaglioDiagnosi;
+
+
+
 
 
 

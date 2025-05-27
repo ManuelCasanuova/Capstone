@@ -27,7 +27,6 @@ function DiagnosiPaziente() {
   };
 
   useEffect(() => {
-    console.log("DiagnosiPaziente caricato con pazienteId:", pazienteId);
     fetchDiagnosi();
   }, [pazienteId]);
 
@@ -42,16 +41,13 @@ function DiagnosiPaziente() {
   if (selectedDiagnosi) {
     return (
       <Container className="mt-3">
-        <Button
-          variant="primary"
-          onClick={() => setSelectedDiagnosi(null)}
-          className="mb-3"
-        >
-          ← Torna alla lista
-        </Button>
         <DettaglioDiagnosi
           diagnosi={selectedDiagnosi}
           onBack={() => setSelectedDiagnosi(null)}
+          onDeleteSuccess={() => {
+            fetchDiagnosi();
+            setSelectedDiagnosi(null);
+          }}
         />
       </Container>
     );
@@ -101,3 +97,4 @@ function DiagnosiPaziente() {
 }
 
 export default DiagnosiPaziente;
+
