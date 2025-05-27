@@ -14,6 +14,7 @@ import AccessPage from './component/access/AccessPage'
 import Appuntamenti from './component/Appuntamenti/Appuntamenti'
 import CambioPassword from './component/access/CambioPassword'
 import AppuntamentiPaziente from './component/Appuntamenti/AppuntamentiPaziente'
+import DiagnosiPaziente from './component/diagnosi/DiagnosiPaziente'
 
 
 
@@ -52,6 +53,8 @@ function App() {
           <Route path= '/paginaProfilo/:id' element={<Container className='pt-3'><PaginaProfilo /></Container>} />
 
           <Route path='/appuntamenti' element={<Appuntamenti />} />
+
+          <Route path="/diagnosi/:pazienteId" element={<DiagnosiPaziente />} />
          
         
 

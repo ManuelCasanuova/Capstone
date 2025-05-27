@@ -30,6 +30,7 @@ const ModaleNuovoAppuntamento = ({
   const [successo, setSuccesso] = useState(null);
   const [errore, setErrore] = useState(null);
 
+  // Sincronizzo lo stato interno con le props all'apertura o cambiamento
   useEffect(() => {
     if (appuntamentoDaModificare) {
       setMotivo(appuntamentoDaModificare.motivoRichiesta || "");
@@ -41,6 +42,7 @@ const ModaleNuovoAppuntamento = ({
       setNome(appuntamentoDaModificare.nome || "");
       setCognome(appuntamentoDaModificare.cognome || "");
       setPazienteSelezionato({ id: appuntamentoDaModificare.pazienteId });
+      setPazientiTrovati([]);
     } else if (pazienteId) {
       setPazienteSelezionato({ id: pazienteId });
       setNome(pazienteNome || "");
@@ -51,6 +53,7 @@ const ModaleNuovoAppuntamento = ({
       setSuccesso(null);
       setErrore(null);
     } else {
+      // caso "nuovo" senza paziente predefinito
       setMotivo("");
       setOrarioSelezionato("");
       setNome("");
@@ -60,7 +63,7 @@ const ModaleNuovoAppuntamento = ({
       setSuccesso(null);
       setErrore(null);
     }
-  }, [appuntamentoDaModificare, pazienteId, pazienteNome, pazienteCognome]);
+  }, [appuntamentoDaModificare, pazienteId, pazienteNome, pazienteCognome, show]);
 
   const handleCercaPazienti = async (e) => {
     e.preventDefault();
@@ -78,16 +81,27 @@ const ModaleNuovoAppuntamento = ({
     }
   };
 
+  const handleSelezionaPaziente = (e) => {
+    const idSelezionato = parseInt(e.target.value);
+    const paziente = pazientiTrovati.find((p) => p.id === idSelezionato) || null;
+    setPazienteSelezionato(paziente);
+    if (paziente) {
+      setNome(paziente.nome);
+      setCognome(paziente.cognome);
+    } else {
+      setNome("");
+      setCognome("");
+    }
+  };
+
   const creaDataOraLocal = (dataDate, orarioStr) => {
     if (!dataDate || !orarioStr) return null;
-
     const [hh, mm] = orarioStr.split(":").map(Number);
     const year = dataDate.getFullYear();
     const month = String(dataDate.getMonth() + 1).padStart(2, "0");
     const day = String(dataDate.getDate()).padStart(2, "0");
     const hours = String(hh).padStart(2, "0");
     const minutes = String(mm).padStart(2, "0");
-
     return `${year}-${month}-${day}T${hours}:${minutes}:00`;
   };
 
@@ -183,12 +197,7 @@ const ModaleNuovoAppuntamento = ({
                   <Form.Label>Seleziona paziente</Form.Label>
                   <Form.Select
                     value={pazienteSelezionato?.id || ""}
-                    onChange={(e) => {
-                      const selezionato = pazientiTrovati.find(
-                        (p) => p.id === parseInt(e.target.value)
-                      );
-                      setPazienteSelezionato(selezionato || null);
-                    }}
+                    onChange={handleSelezionaPaziente}
                     required
                   >
                     <option value="">Seleziona...</option>
@@ -248,6 +257,9 @@ const ModaleNuovoAppuntamento = ({
 };
 
 export default ModaleNuovoAppuntamento;
+
+
+
 
 
 

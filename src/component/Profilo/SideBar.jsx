@@ -39,6 +39,14 @@ const SideBar = ({ pazienteId }) => {
         Piano terapeutico
       </div>
 
+       <div
+        className="border colorDiv p-4"
+        style={{ color: "#074662", cursor: "pointer" }}
+        onClick={() => navigate(`/diagnosi/${pazienteId}`)}
+      >
+        Diagnosi
+      </div>
+
       <div
         className="border colorDiv shadow-sm rounded-bottom-3 p-4"
         style={{ color: "#074662", cursor: "pointer" }}
