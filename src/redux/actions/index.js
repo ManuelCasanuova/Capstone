@@ -82,34 +82,7 @@ export const fetchNews = () => {
 };
 
 
-  export const fetchUserDetails = (token) => {
-    return async (dispatch) => {
-      try {
-        const response = await fetch(apiUrl + "/utente/me", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-  
-        const data = await response.json();
-  
-        if (response.ok && data) {
-          dispatch({ type: SET_USER, payload: data });
-            console.log("SONO DATA", data);
-        } else {
-          localStorage.removeItem("token");
-          dispatch({ type: LOGOUT });
-        }
-      } catch (error) {
-        console.error("Errore nel recupero dell'utente:", error);
-        localStorage.removeItem("token");
-        dispatch({ type: LOGOUT });
-      }
-    };
-  
-  };
+
 
 
 export const fetchPazienti = (token, page = 0) => {

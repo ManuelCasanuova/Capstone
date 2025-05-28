@@ -1,74 +1,56 @@
 import { Col, Container, Image, Row } from "react-bootstrap";
 import PrimoPiano from "./PrimoPiano";
-import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { useEffect } from "react";
-import { fetchUserDetails, LOGOUT } from "../../redux/actions";
 import logo from "../../assets/Logo.png";
 import AppuntamentiOggi from "../Appuntamenti/AppuntamentiOggi";
 import GestioneStudio from "../studio/GestioneStudio";
-
-
+import { useAuth } from "../access/AuthContext";
 
 
 const Dashboard = () => {
-
-  const dispatch = useDispatch();
-  const user = useSelector((state) => state.user.user);
-  const token = localStorage.getItem("token");
+  const { user, token, loading, logout } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (token) {
-      dispatch(fetchUserDetails(token));
-    } else {
-      dispatch({ type: LOGOUT });
-      localStorage.removeItem("token");
+    if (!token) {
+      logout(); 
       navigate("/login");
     }
-  }, [dispatch, token, navigate]);
+  }, [token, logout, navigate]);
 
-  if (!user) {
+  if (loading) {
     return <p>Caricamento in corso...</p>;
   }
 
+  if (!user) {
+
+    navigate("/login");
+    return null;
+  }
+
   return (
-    <>
-      <Container>
-
-        <div className="d-flex ">
-
+    <Container>
+      <div className="d-flex ">
         <div className="mt-5">
           <h2>Dashboard</h2>
           <p>Benvenuto {user.cognome} {user.nome}</p>
-          
-       </div>  
-
-       
-        
+        </div>
         <div className="ms-auto">
           <Image src={logo} alt="Logo" fluid style={{ width: "150px" }} />
         </div>
+      </div>
 
-        </div>
-
-        <Row xs={2}>
-          <Col>
-            
-           
-            <GestioneStudio />
-            
-          </Col>
-
-          <Col> 
-           <AppuntamentiOggi />
+      <Row xs={2}>
+        <Col>
+          <GestioneStudio />
+        </Col>
+        <Col>
+          <AppuntamentiOggi />
           <PrimoPiano />
-          </Col>
-
-
-        </Row>
-      </Container>
-    </>
+        </Col>
+      </Row>
+    </Container>
   );
 };
 

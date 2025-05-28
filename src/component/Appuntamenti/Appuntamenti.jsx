@@ -11,45 +11,24 @@ import {
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import logo from "../../assets/Logo.png";
-import { useDispatch, useSelector } from "react-redux";
-import { deleteAppuntamento, fetchAppuntamenti } from "../../redux/actions";
 import ModaleNuovoAppuntamento from "../modali/ModaleNuovoAppuntamento";
 import ModaleConferma from "../modali/ModaleConferma";
 import { useNavigate, useLocation } from "react-router";
+import { useAuth } from "../access/AuthContext";
 
 const Appuntamenti = () => {
-  const dispatch = useDispatch();
+  const { user, token } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const token = localStorage.getItem("token");
 
-  const user = useSelector((state) => state.user.user);
   const isAdmin = user?.roles?.includes("ROLE_ADMIN");
   const isPaziente = user?.roles?.includes("ROLE_PAZIENTE");
-  const pazienteIdRedux = user?.id;
-
-  const appuntamentiRedux = useSelector(
-    (state) => state.appuntamenti.appuntamenti || []
-  );
+  const pazienteId = user?.id;
 
   const pazienteDaPassaggio = location.state?.paziente || null;
 
   const [pazienteSelezionato, setPazienteSelezionato] = useState(null);
-
-  useEffect(() => {
-    if (isPaziente) {
-      setPazienteSelezionato({
-        id: pazienteIdRedux,
-        nome: user?.nome || "",
-        cognome: user?.cognome || "",
-      });
-    } else if (pazienteDaPassaggio) {
-      setPazienteSelezionato(pazienteDaPassaggio);
-    } else {
-      setPazienteSelezionato(null);
-    }
-  }, [isPaziente, pazienteIdRedux, user, pazienteDaPassaggio]);
-
+  const [appuntamenti, setAppuntamenti] = useState([]);
   const [dataSelezionata, setDataSelezionata] = useState(new Date());
   const [appuntamentiGiorno, setAppuntamentiGiorno] = useState([]);
   const [orariDisponibili, setOrariDisponibili] = useState([]);
@@ -61,11 +40,38 @@ const Appuntamenti = () => {
   const [idDaEliminare, setIdDaEliminare] = useState(null);
 
   useEffect(() => {
-    if (token && appuntamentiRedux.length === 0) {
-      dispatch(fetchAppuntamenti(token));
+    if (isPaziente) {
+      setPazienteSelezionato({
+        id: pazienteId,
+        nome: user?.nome || "",
+        cognome: user?.cognome || "",
+      });
+    } else if (pazienteDaPassaggio) {
+      setPazienteSelezionato(pazienteDaPassaggio);
+    } else {
+      setPazienteSelezionato(null);
     }
+  }, [isPaziente, pazienteId, user, pazienteDaPassaggio]);
+
+  useEffect(() => {
+    const fetchAppuntamenti = async () => {
+      if (!token) return;
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/appuntamenti`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setAppuntamenti(data);
+        }
+      } catch (error) {
+        console.error("Errore fetch appuntamenti", error);
+      }
+    };
+    fetchAppuntamenti();
 
     const fetchOrariStudio = async () => {
+      if (!token) return;
       try {
         const res = await fetch(`${import.meta.env.VITE_API_URL}/studio/orari`, {
           headers: { Authorization: `Bearer ${token}` },
@@ -74,18 +80,21 @@ const Appuntamenti = () => {
           const dati = await res.json();
           setOrariStudio(dati);
         }
-      } catch {}
+      } catch (error) {
+        console.error("Errore fetch orari studio", error);
+      }
     };
     fetchOrariStudio();
-  }, [dispatch, token, appuntamentiRedux.length]);
+  }, [token]);
 
   useEffect(() => {
-    const filtered = appuntamentiRedux.filter(
-      (app) =>
-        new Date(app.dataOraAppuntamento).toDateString() ===
-          dataSelezionata.toDateString() &&
-        (isAdmin || app.pazienteId === pazienteSelezionato?.id)
-    );
+    // filtro appuntamenti per data e per paziente (o admin)
+    const filtered = appuntamenti.filter((app) => {
+      const isSameDay = new Date(app.dataOraAppuntamento).toDateString() === dataSelezionata.toDateString();
+      // confronto robusto tra id: convertiamo entrambi in stringa
+      const isPatientMatch = isAdmin || (String(app.pazienteId) === String(pazienteSelezionato?.id));
+      return isSameDay && isPatientMatch;
+    });
 
     const ordinati = filtered.sort(
       (a, b) => new Date(a.dataOraAppuntamento) - new Date(b.dataOraAppuntamento)
@@ -93,9 +102,9 @@ const Appuntamenti = () => {
 
     setAppuntamentiGiorno(ordinati);
 
-    const giornoSett = dataSelezionata.toLocaleDateString("en-US", {
-      weekday: "long",
-    }).toUpperCase();
+    const giornoSett = dataSelezionata
+      .toLocaleDateString("en-US", { weekday: "long" })
+      .toUpperCase();
 
     const giornoStudio = orariStudio.find((g) => g.giorno === giornoSett);
 
@@ -112,7 +121,9 @@ const Appuntamenti = () => {
       let [sh, sm] = start.split(":").map(Number);
       const [eh, em] = end.split(":").map(Number);
       while (sh < eh || (sh === eh && sm < em)) {
-        orariSlot.push(`${sh.toString().padStart(2, "0")}:${sm.toString().padStart(2, "0")}`);
+        orariSlot.push(
+          `${sh.toString().padStart(2, "0")}:${sm.toString().padStart(2, "0")}`
+        );
         sm += 30;
         if (sm >= 60) {
           sm = 0;
@@ -148,13 +159,25 @@ const Appuntamenti = () => {
 
     setOrariDisponibili(disponibili);
     setShowAlertChiuso(disponibili.length === 0);
-  }, [dataSelezionata, appuntamentiRedux, isAdmin, pazienteSelezionato, orariStudio]);
+  }, [dataSelezionata, appuntamenti, isAdmin, pazienteSelezionato, orariStudio]);
 
   const handleConfermaEliminazione = async () => {
+    if (!token || !idDaEliminare) return;
+
     try {
-      await dispatch(deleteAppuntamento(token, idDaEliminare));
-      dispatch(fetchAppuntamenti(token));
-    } catch {}
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/appuntamenti/${idDaEliminare}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      if (res.ok) {
+        setAppuntamenti((prev) => prev.filter((a) => a.id !== idDaEliminare));
+      }
+    } catch (error) {
+      console.error("Errore eliminazione appuntamento", error);
+    }
     setShowConferma(false);
     setIdDaEliminare(null);
   };
@@ -175,9 +198,9 @@ const Appuntamenti = () => {
 
   const haPrenotazioneInData =
     isPaziente &&
-    appuntamentiRedux.some(
+    appuntamenti.some(
       (app) =>
-        app.pazienteId === pazienteSelezionato?.id &&
+        String(app.pazienteId) === String(pazienteSelezionato?.id) &&
         new Date(app.dataOraAppuntamento).toDateString() ===
           dataSelezionata.toDateString()
     );
@@ -202,16 +225,21 @@ const Appuntamenti = () => {
             minDate={new Date()}
             tileDisabled={({ date, view }) => {
               if (view !== "month") return false;
+
+              const day = date.getDay();
+              if (day === 0 || day === 6) return true; // disabilita sab e dom
+
               const giornoSett = date
                 .toLocaleDateString("en-US", { weekday: "long" })
                 .toUpperCase();
               const giornoStudio = orariStudio.find((g) => g.giorno === giornoSett);
               const isPast = date < new Date(new Date().setHours(0, 0, 0, 0));
+
               return isPast || giornoStudio?.chiuso;
             }}
             tileContent={({ date, view }) => {
               if (view === "month") {
-                const count = appuntamentiRedux.filter(
+                const count = appuntamenti.filter(
                   (app) =>
                     new Date(app.dataOraAppuntamento).toDateString() ===
                     date.toDateString()
@@ -234,7 +262,7 @@ const Appuntamenti = () => {
         <Col md={6}>
           <h4 className="mb-3">Appuntamenti per il {dataSelezionata.toLocaleDateString()}</h4>
 
-          {appuntamentiGiorno.length > 0 ? (
+          {appuntamentiGiorno.length > 0 && (
             <ListGroup>
               {appuntamentiGiorno.map((app) => (
                 <ListGroup.Item
@@ -273,7 +301,7 @@ const Appuntamenti = () => {
                         }}
                       ></i>
                     )}
-                    {(isAdmin || app.pazienteId === pazienteSelezionato?.id) && (
+                    {(isAdmin || String(app.pazienteId) === String(pazienteSelezionato?.id)) && (
                       <i
                         className="bi bi-trash"
                         style={{ color: "red", cursor: "pointer", fontSize: "1.2rem" }}
@@ -289,10 +317,12 @@ const Appuntamenti = () => {
                 </ListGroup.Item>
               ))}
             </ListGroup>
-          ) : (
-            <p style={{ color: "#2EB0A0" }} className="mt-2">
-              Nessun appuntamento per questo giorno.
-            </p>
+          )}
+
+          {haPrenotazioneInData && (
+            <Alert variant="warning" className="mt-3">
+              Hai già una prenotazione per questa data e non puoi prenotarne altre.
+            </Alert>
           )}
 
           {showAlertChiuso && (
@@ -306,21 +336,9 @@ const Appuntamenti = () => {
             </Alert>
           )}
 
-          {isPaziente && haPrenotazioneInData ? (
-            <Button variant="secondary" className="mt-3" disabled>
-              Hai già una prenotazione per questa data
-            </Button>
-          ) : (
-            !showAlertChiuso && (
-              <Button
-                variant="primary"
-                className="mt-3"
-                onClick={handleApriNuovoAppuntamento}
-              >
-                Nuova prenotazione
-              </Button>
-            )
-          )}
+          <Button variant="primary" className="mt-3" onClick={handleApriNuovoAppuntamento}>
+            Nuova prenotazione
+          </Button>
         </Col>
       </Row>
 
@@ -351,6 +369,7 @@ const Appuntamenti = () => {
 };
 
 export default Appuntamenti;
+
 
 
 
