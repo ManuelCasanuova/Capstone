@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Nav, Dropdown, Image } from "react-bootstrap";
 import {
   Calendar3,
@@ -6,32 +6,33 @@ import {
   People,
   Power,
 } from "react-bootstrap-icons";
-import { useSelector } from "react-redux";
 import { Link, useLocation, useNavigate } from "react-router";
+import { useAuth } from "../access/AuthContext";
+
 
 const MyNavbar = () => {
-  const token = localStorage.getItem("token");
   const location = useLocation();
   const navigate = useNavigate();
-  const user = useSelector((state) => state.user.user);
+  const { user, logout } = useAuth();
 
   const [showDropdown, setShowDropdown] = useState(false);
   const avatarRef = useRef(null);
 
+  const token = localStorage.getItem("token");
   if (!token || location.pathname === "/login") return null;
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
-  };
+  const roles = user?.roles || [];
+  const isAdmin = roles.includes("ROLE_ADMIN");
+  const isPaziente = roles.includes("ROLE_PAZIENTE");
 
   const isActive = (path) => location.pathname === path;
   const toggleDropdown = () => setShowDropdown((prev) => !prev);
   const closeDropdown = () => setShowDropdown(false);
 
-  const roles = user?.roles || [];
-  const isAdmin = roles.includes("ROLE_ADMIN");
-  const isPaziente = roles.includes("ROLE_PAZIENTE");
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
 
   const renderAvatarDropdown = () => (
     <Dropdown show={showDropdown} onToggle={() => {}} className="mb-3">
@@ -141,6 +142,7 @@ const MyNavbar = () => {
 };
 
 export default MyNavbar;
+
 
 
 

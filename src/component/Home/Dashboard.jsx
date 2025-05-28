@@ -6,7 +6,6 @@ import { useEffect } from "react";
 import { fetchUserDetails, LOGOUT } from "../../redux/actions";
 import logo from "../../assets/Logo.png";
 import AppuntamentiOggi from "../Appuntamenti/AppuntamentiOggi";
-import StatisticheAppuntamenti from "./StatisticheAppuntamenti";
 import GestioneStudio from "../studio/GestioneStudio";
 
 

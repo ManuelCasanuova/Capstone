@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Button, Col, Form, Row, Spinner, Alert, Card, Container } from "react-bootstrap";
-import { useSelector } from "react-redux";
+import { useAuth } from "../access/AuthContext";
+
 
 const GIORNI_SETTIMANA = [
   { key: "MONDAY", nome: "Lunedì" },
@@ -11,7 +12,7 @@ const GIORNI_SETTIMANA = [
 ];
 
 const GestioneStudio = () => {
-  const user = useSelector(state => state.user.user);
+  const { user, token } = useAuth();
   const isPaziente = user?.roles?.includes("ROLE_PAZIENTE");
 
   const [studio, setStudio] = useState(null);
@@ -25,19 +26,18 @@ const GestioneStudio = () => {
   const timerRef = useRef(null);
 
   const apiUrl = import.meta.env.VITE_API_URL;
-  const token = localStorage.getItem("token");
 
   const fetchOrari = async () => {
     try {
-      const resOrari = await fetch(`${apiUrl}/studio/orari`, {
+      const res = await fetch(`${apiUrl}/studio/orari`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (!resOrari.ok) throw new Error();
-      let giorniData = await resOrari.json();
-      giorniData = giorniData.map((g) =>
+      if (!res.ok) throw new Error();
+      let data = await res.json();
+      data = data.map(g =>
         g.giorno === "SATURDAY" || g.giorno === "SUNDAY" ? { ...g, chiuso: true } : g
       );
-      setGiorni(giorniData);
+      setGiorni(data);
     } catch {
       setErrore("Errore nel caricamento degli orari");
     }
@@ -45,13 +45,12 @@ const GestioneStudio = () => {
 
   const fetchStudioEOrari = async () => {
     try {
-      const resStudio = await fetch(`${apiUrl}/studio`, {
+      const res = await fetch(`${apiUrl}/studio`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (!resStudio.ok) throw new Error();
-      const studioData = await resStudio.json();
+      if (!res.ok) throw new Error();
+      const studioData = await res.json();
       setStudio(studioData);
-
       await fetchOrari();
     } catch {
       setErrore("Errore nel caricamento dei dati");
@@ -62,16 +61,10 @@ const GestioneStudio = () => {
 
   useEffect(() => {
     fetchStudioEOrari();
+    return () => timerRef.current && clearTimeout(timerRef.current);
+  }, []);
 
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
-  }, [apiUrl, token]);
-
-  const isClosed = (inizio, fine) => {
-    return !inizio || !fine;
-  };
-
+  const isClosed = (inizio, fine) => !inizio || !fine;
   const formatTime = (timeStr) => {
     if (!timeStr) return "";
     const [hh, mm] = timeStr.split(":");
@@ -83,58 +76,52 @@ const GestioneStudio = () => {
   };
 
   const handleOrarioChange = (index, field, value) => {
-    const nuoviGiorni = [...giorni];
-    nuoviGiorni[index][field] = value;
-    setGiorni(nuoviGiorni);
+    const nuovi = [...giorni];
+    nuovi[index][field] = value;
+    setGiorni(nuovi);
   };
 
   const handleCheckboxChange = (index, campo, checked) => {
-    const nuoviGiorni = [...giorni];
-
+    const nuovi = [...giorni];
     if (campo === "chiuso") {
-      nuoviGiorni[index].chiuso = checked;
+      nuovi[index].chiuso = checked;
       if (checked) {
-        nuoviGiorni[index].inizioMattina = null;
-        nuoviGiorni[index].fineMattina = null;
-        nuoviGiorni[index].inizioPomeriggio = null;
-        nuoviGiorni[index].finePomeriggio = null;
+        nuovi[index].inizioMattina = null;
+        nuovi[index].fineMattina = null;
+        nuovi[index].inizioPomeriggio = null;
+        nuovi[index].finePomeriggio = null;
       }
     } else if (campo === "chiusuraMattina") {
       if (checked) {
-        nuoviGiorni[index].inizioMattina = null;
-        nuoviGiorni[index].fineMattina = null;
+        nuovi[index].inizioMattina = null;
+        nuovi[index].fineMattina = null;
       } else {
-        nuoviGiorni[index].inizioMattina = "08:00";
-        nuoviGiorni[index].fineMattina = "13:00";
+        nuovi[index].inizioMattina = "08:00";
+        nuovi[index].fineMattina = "13:00";
       }
     } else if (campo === "chiusuraPomeriggio") {
       if (checked) {
-        nuoviGiorni[index].inizioPomeriggio = null;
-        nuoviGiorni[index].finePomeriggio = null;
+        nuovi[index].inizioPomeriggio = null;
+        nuovi[index].finePomeriggio = null;
       } else {
-        nuoviGiorni[index].inizioPomeriggio = "14:00";
-        nuoviGiorni[index].finePomeriggio = "18:00";
+        nuovi[index].inizioPomeriggio = "14:00";
+        nuovi[index].finePomeriggio = "18:00";
       }
     }
-
-    setGiorni(nuoviGiorni);
+    setGiorni(nuovi);
   };
 
   const openAlert = () => {
     setShowAlert(true);
-    timerRef.current = setTimeout(() => {
-      handleCloseAlert();
-    }, 2000);
+    timerRef.current = setTimeout(() => handleCloseAlert(), 2000);
   };
 
   const handleCloseAlert = () => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-      timerRef.current = null;
-    }
+    timerRef.current && clearTimeout(timerRef.current);
+    timerRef.current = null;
     setShowAlert(false);
     setSalvataggioOk(false);
-    setEditMode(false); // torna alla vista normale dopo alert
+    setEditMode(false);
   };
 
   const handleSubmit = async (e) => {
@@ -144,7 +131,7 @@ const GestioneStudio = () => {
     setSaving(true);
 
     try {
-      const resStudio = await fetch(`${apiUrl}/studio`, {
+      const res1 = await fetch(`${apiUrl}/studio`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -152,9 +139,9 @@ const GestioneStudio = () => {
         },
         body: JSON.stringify(studio),
       });
-      if (!(resStudio.status >= 200 && resStudio.status < 300)) throw new Error();
+      if (!res1.ok) throw new Error();
 
-      const resOrari = await fetch(`${apiUrl}/studio/orari`, {
+      const res2 = await fetch(`${apiUrl}/studio/orari`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -162,14 +149,12 @@ const GestioneStudio = () => {
         },
         body: JSON.stringify(giorni),
       });
-      if (!(resOrari.status >= 200 && resOrari.status < 300)) throw new Error();
+      if (!res2.ok) throw new Error();
 
       setSalvataggioOk(true);
       openAlert();
-
       await fetchOrari();
-    } catch (error) {
-      console.error("Errore nel salvataggio:", error);
+    } catch {
       setErrore("Errore durante il salvataggio");
       setSalvataggioOk(false);
       openAlert();
@@ -179,262 +164,127 @@ const GestioneStudio = () => {
   };
 
   if (loading) return <Spinner animation="border" className="mt-4" />;
+  if (!studio) return <Alert variant="danger">Studio non trovato</Alert>;
 
-  if (!studio)
-    return (
-      <Alert variant="danger" className="mt-4">
-        Studio non trovato
-      </Alert>
-    );
 
-  if (isPaziente) {
-    return (
-      <Container >
-        <h4 className="mb-4">Orari di apertura studio</h4>
-        <Card className="mb-3 p-3 shadow-sm">
-          <h5>{studio.nome}</h5>
-          <p className="mb-1">
-            <strong>Indirizzo:</strong> {studio.indirizzo}
-          </p>
-          <p className="mb-3">
-            <strong>Telefono:</strong> {studio.telefono}
-          </p>
-          {giorni
-            .filter((g) => g.giorno !== "SATURDAY" && g.giorno !== "SUNDAY")
-            .map((giorno) => {
-              const label = GIORNI_SETTIMANA.find((g) => g.key === giorno.giorno)?.nome || giorno.giorno;
-              const mattinaChiusa = isClosed(giorno.inizioMattina, giorno.fineMattina);
-              const pomeriggioChiuso = isClosed(giorno.inizioPomeriggio, giorno.finePomeriggio);
-
-              return (
-                <Card key={giorno.giorno} className="mb-2 p-3">
-                  <Card.Title className="mb-2">{label}</Card.Title>
-                  {giorno.chiuso ? (
-                    <Card.Text className="text-danger">Chiusura Giornaliera</Card.Text>
-                  ) : (
-                    <>
-                      <Card.Text>
-                        <strong>Mattina:</strong>{" "}
-                        {!mattinaChiusa
-                          ? `${formatTime(giorno.inizioMattina)} - ${formatTime(giorno.fineMattina)}`
-                          : <span className="text-danger">Chiuso</span>}
-                      </Card.Text>
-                      <Card.Text>
-                        <strong>Pomeriggio:</strong>{" "}
-                        {!pomeriggioChiuso
-                          ? `${formatTime(giorno.inizioPomeriggio)} - ${formatTime(giorno.finePomeriggio)}`
-                          : <span className="text-danger">Chiuso</span>}
-                      </Card.Text>
-                    </>
-                  )}
-                </Card>
-              );
-            })}
-        </Card>
-      </Container>
-    );
-  }
-
-  if (!editMode)
-    return (
-      <Container>
-        <h4 className="mb-4">Orari di apertura studio</h4>
-        <Card className="mb-3 p-3 shadow-sm">
-          <h5>{studio.nome}</h5>
-          <p className="mb-1">
-            <strong>Indirizzo:</strong> {studio.indirizzo}
-          </p>
-          <p className="mb-3">
-            <strong>Telefono:</strong> {studio.telefono}
-          </p>
-          {giorni
-            .filter((g) => g.giorno !== "SATURDAY" && g.giorno !== "SUNDAY")
-            .map((giorno) => {
-              const label = GIORNI_SETTIMANA.find((g) => g.key === giorno.giorno)?.nome || giorno.giorno;
-              const mattinaChiusa = isClosed(giorno.inizioMattina, giorno.fineMattina);
-              const pomeriggioChiuso = isClosed(giorno.inizioPomeriggio, giorno.finePomeriggio);
-
-              return (
-                <Card key={giorno.giorno} className="mb-2 p-3">
-                  <Card.Title className="mb-2">{label}</Card.Title>
-                  {giorno.chiuso ? (
-                    <Card.Text className="text-danger">Chiusura Giornaliera</Card.Text>
-                  ) : (
-                    <>
-                      <Card.Text>
-                        <strong>Mattina:</strong>{" "}
-                        {!mattinaChiusa
-                          ? `${formatTime(giorno.inizioMattina)} - ${formatTime(giorno.fineMattina)}`
-                          : <span className="text-danger">Chiuso</span>}
-                      </Card.Text>
-                      <Card.Text>
-                        <strong>Pomeriggio:</strong>{" "}
-                        {!pomeriggioChiuso
-                          ? `${formatTime(giorno.inizioPomeriggio)} - ${formatTime(giorno.finePomeriggio)}`
-                          : <span className="text-danger">Chiuso</span>}
-                      </Card.Text>
-                    </>
-                  )}
-                </Card>
-              );
-            })}
-          <Button variant="primary" onClick={() => setEditMode(true)}>
-            Modifica Orari
-          </Button>
-        </Card>
-      </Container>
-    );
-
-  return (
-    <>
-      {showAlert ? (
-        <Alert
-          variant={salvataggioOk ? "success" : "danger"}
-          onClose={handleCloseAlert}
-          dismissible
-          className="mt-4 mx-auto"
-          style={{ maxWidth: "400px" }}
-        >
+  return isPaziente ? (
+    <Container>
+      <h4 className="mb-4">Orari di apertura studio</h4>
+      <Card className="mb-3 p-3 shadow-sm">
+        <h5>{studio.nome}</h5>
+        <p><strong>Indirizzo:</strong> {studio.indirizzo}</p>
+        <p><strong>Telefono:</strong> {studio.telefono}</p>
+        {giorni.filter(g => g.giorno !== "SATURDAY" && g.giorno !== "SUNDAY").map(g => {
+          const label = GIORNI_SETTIMANA.find(day => day.key === g.giorno)?.nome || g.giorno;
+          return (
+            <Card key={g.giorno} className="mb-2 p-3">
+              <Card.Title>{label}</Card.Title>
+              {g.chiuso ? (
+                <Card.Text className="text-danger">Chiusura Giornaliera</Card.Text>
+              ) : (
+                <>
+                  <Card.Text>
+                    <strong>Mattina:</strong> {!isClosed(g.inizioMattina, g.fineMattina) ? `${formatTime(g.inizioMattina)} - ${formatTime(g.fineMattina)}` : <span className="text-danger">Chiuso</span>}
+                  </Card.Text>
+                  <Card.Text>
+                    <strong>Pomeriggio:</strong> {!isClosed(g.inizioPomeriggio, g.finePomeriggio) ? `${formatTime(g.inizioPomeriggio)} - ${formatTime(g.finePomeriggio)}` : <span className="text-danger">Chiuso</span>}
+                  </Card.Text>
+                </>
+              )}
+            </Card>
+          );
+        })}
+      </Card>
+    </Container>
+  ) : editMode ? (
+    <Container>
+      {showAlert && (
+        <Alert variant={salvataggioOk ? "success" : "danger"} onClose={handleCloseAlert} dismissible>
           {salvataggioOk ? "Modifiche salvate correttamente!" : errore || "Errore durante il salvataggio."}
         </Alert>
-      ) : (
-        <Container>
-          <Form onSubmit={handleSubmit}>
-            <h4>Gestione Studio Medico</h4>
-
-            <Row className="mb-3">
-              <Col md={6}>
-                <Form.Group>
-                  <Form.Label>Nome studio</Form.Label>
-                  <Form.Control
-                    name="nome"
-                    value={studio.nome || ""}
-                    onChange={handleStudioChange}
-                    required
-                  />
-                </Form.Group>
-              </Col>
-              <Col md={6}>
-                <Form.Group>
-                  <Form.Label>Telefono</Form.Label>
-                  <Form.Control
-                    name="telefono"
-                    value={studio.telefono || ""}
-                    onChange={handleStudioChange}
-                    required
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-
-            <Form.Group className="mb-3">
-              <Form.Label>Indirizzo</Form.Label>
-              <Form.Control
-                name="indirizzo"
-                value={studio.indirizzo || ""}
-                onChange={handleStudioChange}
-                required
-              />
-            </Form.Group>
-
-            <h5 className="mt-4">Orari di apertura settimanali</h5>
-
-            {giorni
-              .filter((g) => g.giorno !== "SATURDAY" && g.giorno !== "SUNDAY")
-              .map((giorno, index) => {
-                const label = GIORNI_SETTIMANA.find((g) => g.key === giorno.giorno)?.nome || giorno.giorno;
-
-                return (
-                  <div key={giorno.giorno} className="mb-3 border rounded p-3 bg-light">
-                    <Row className="align-items-center mb-2">
-                      <Col md={2}>
-                        <strong>{label}</strong>
-                      </Col>
-                      <Col md={3}>
-                        <Form.Check
-                          type="checkbox"
-                          label="Chiusura Giornaliera"
-                          checked={giorno.chiuso}
-                          onChange={(e) => handleCheckboxChange(index, "chiuso", e.target.checked)}
-                        />
-                      </Col>
-                      <Col md={3}>
-                        <Form.Check
-                          type="checkbox"
-                          label="Chiusura Mattina"
-                          checked={!giorno.inizioMattina}
-                          onChange={(e) => handleCheckboxChange(index, "chiusuraMattina", e.target.checked)}
-                          disabled={giorno.chiuso}
-                        />
-                      </Col>
-                      <Col md={3}>
-                        <Form.Check
-                          type="checkbox"
-                          label="Chiusura Pomeriggio"
-                          checked={!giorno.inizioPomeriggio}
-                          onChange={(e) => handleCheckboxChange(index, "chiusuraPomeriggio", e.target.checked)}
-                          disabled={giorno.chiuso}
-                        />
-                      </Col>
-                    </Row>
-
-                    {!giorno.chiuso && (
-                      <>
-                        <Row>
-                          <Col md={3}>
-                            <Form.Label>Inizio mattina</Form.Label>
-                            <Form.Control
-                              type="time"
-                              value={giorno.inizioMattina || ""}
-                              disabled={!giorno.inizioMattina}
-                              onChange={(e) => handleOrarioChange(index, "inizioMattina", e.target.value)}
-                            />
-                          </Col>
-                          <Col md={3}>
-                            <Form.Label>Fine mattina</Form.Label>
-                            <Form.Control
-                              type="time"
-                              value={giorno.fineMattina || ""}
-                              disabled={!giorno.inizioMattina}
-                              onChange={(e) => handleOrarioChange(index, "fineMattina", e.target.value)}
-                            />
-                          </Col>
-                          <Col md={3}>
-                            <Form.Label>Inizio pomeriggio</Form.Label>
-                            <Form.Control
-                              type="time"
-                              value={giorno.inizioPomeriggio || ""}
-                              disabled={!giorno.inizioPomeriggio}
-                              onChange={(e) => handleOrarioChange(index, "inizioPomeriggio", e.target.value)}
-                            />
-                          </Col>
-                          <Col md={3}>
-                            <Form.Label>Fine pomeriggio</Form.Label>
-                            <Form.Control
-                              type="time"
-                              value={giorno.finePomeriggio || ""}
-                              disabled={!giorno.inizioPomeriggio}
-                              onChange={(e) => handleOrarioChange(index, "finePomeriggio", e.target.value)}
-                            />
-                          </Col>
-                        </Row>
-                      </>
-                    )}
-                  </div>
-                );
-              })}
-
-            <Button type="submit" variant="primary" disabled={saving}>
-              {saving ? "Salvataggio..." : "Salva modifiche"}
-            </Button>
-          </Form>
-        </Container>
       )}
-    </>
+      <Form onSubmit={handleSubmit}>
+        <h4>Gestione Studio Medico</h4>
+        <Row className="mb-3">
+          <Col md={6}>
+            <Form.Group>
+              <Form.Label>Nome studio</Form.Label>
+              <Form.Control name="nome" value={studio.nome || ""} onChange={handleStudioChange} required />
+            </Form.Group>
+          </Col>
+          <Col md={6}>
+            <Form.Group>
+              <Form.Label>Telefono</Form.Label>
+              <Form.Control name="telefono" value={studio.telefono || ""} onChange={handleStudioChange} required />
+            </Form.Group>
+          </Col>
+        </Row>
+        <Form.Group className="mb-3">
+          <Form.Label>Indirizzo</Form.Label>
+          <Form.Control name="indirizzo" value={studio.indirizzo || ""} onChange={handleStudioChange} required />
+        </Form.Group>
+        <h5 className="mt-4">Orari di apertura settimanali</h5>
+        {giorni.filter(g => g.giorno !== "SATURDAY" && g.giorno !== "SUNDAY").map((g, i) => {
+          const label = GIORNI_SETTIMANA.find(day => day.key === g.giorno)?.nome || g.giorno;
+          return (
+            <div key={g.giorno} className="mb-3 border rounded p-3 bg-light">
+              <Row className="align-items-center mb-2">
+                <Col md={2}><strong>{label}</strong></Col>
+                <Col md={3}>
+                  <Form.Check label="Chiusura Giornaliera" checked={g.chiuso} onChange={e => handleCheckboxChange(i, "chiuso", e.target.checked)} />
+                </Col>
+                <Col md={3}>
+                  <Form.Check label="Chiusura Mattina" checked={!g.inizioMattina} disabled={g.chiuso} onChange={e => handleCheckboxChange(i, "chiusuraMattina", e.target.checked)} />
+                </Col>
+                <Col md={3}>
+                  <Form.Check label="Chiusura Pomeriggio" checked={!g.inizioPomeriggio} disabled={g.chiuso} onChange={e => handleCheckboxChange(i, "chiusuraPomeriggio", e.target.checked)} />
+                </Col>
+              </Row>
+              {!g.chiuso && (
+                <Row>
+                  <Col md={3}><Form.Label>Inizio mattina</Form.Label><Form.Control type="time" value={g.inizioMattina || ""} disabled={!g.inizioMattina} onChange={e => handleOrarioChange(i, "inizioMattina", e.target.value)} /></Col>
+                  <Col md={3}><Form.Label>Fine mattina</Form.Label><Form.Control type="time" value={g.fineMattina || ""} disabled={!g.inizioMattina} onChange={e => handleOrarioChange(i, "fineMattina", e.target.value)} /></Col>
+                  <Col md={3}><Form.Label>Inizio pomeriggio</Form.Label><Form.Control type="time" value={g.inizioPomeriggio || ""} disabled={!g.inizioPomeriggio} onChange={e => handleOrarioChange(i, "inizioPomeriggio", e.target.value)} /></Col>
+                  <Col md={3}><Form.Label>Fine pomeriggio</Form.Label><Form.Control type="time" value={g.finePomeriggio || ""} disabled={!g.inizioPomeriggio} onChange={e => handleOrarioChange(i, "finePomeriggio", e.target.value)} /></Col>
+                </Row>
+              )}
+            </div>
+          );
+        })}
+        <Button type="submit" variant="primary" disabled={saving}>{saving ? "Salvataggio..." : "Salva modifiche"}</Button>
+      </Form>
+    </Container>
+  ) : (
+    <Container>
+      <h4 className="mb-4">Orari di apertura studio</h4>
+      <Card className="mb-3 p-3 shadow-sm">
+        <h5>{studio.nome}</h5>
+        <p><strong>Indirizzo:</strong> {studio.indirizzo}</p>
+        <p><strong>Telefono:</strong> {studio.telefono}</p>
+        {giorni.filter(g => g.giorno !== "SATURDAY" && g.giorno !== "SUNDAY").map(g => {
+          const label = GIORNI_SETTIMANA.find(day => day.key === g.giorno)?.nome || g.giorno;
+          return (
+            <Card key={g.giorno} className="mb-2 p-3">
+              <Card.Title>{label}</Card.Title>
+              {g.chiuso ? (
+                <Card.Text className="text-danger">Chiusura Giornaliera</Card.Text>
+              ) : (
+                <>
+                  <Card.Text><strong>Mattina:</strong> {!isClosed(g.inizioMattina, g.fineMattina) ? `${formatTime(g.inizioMattina)} - ${formatTime(g.fineMattina)}` : <span className="text-danger">Chiuso</span>}</Card.Text>
+                  <Card.Text><strong>Pomeriggio:</strong> {!isClosed(g.inizioPomeriggio, g.finePomeriggio) ? `${formatTime(g.inizioPomeriggio)} - ${formatTime(g.finePomeriggio)}` : <span className="text-danger">Chiuso</span>}</Card.Text>
+                </>
+              )}
+            </Card>
+          );
+        })}
+        <Button variant="primary" onClick={() => setEditMode(true)}>Modifica Orari</Button>
+      </Card>
+    </Container>
   );
 };
 
 export default GestioneStudio;
+
 
 
 

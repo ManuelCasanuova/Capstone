@@ -15,6 +15,7 @@ import Appuntamenti from './component/Appuntamenti/Appuntamenti'
 import CambioPassword from './component/access/CambioPassword'
 import AppuntamentiPaziente from './component/Appuntamenti/AppuntamentiPaziente'
 import DiagnosiPaziente from './component/diagnosi/DiagnosiPaziente'
+import Esami from './component/esami/Esami'
 
 
 
@@ -53,6 +54,8 @@ function App() {
           <Route path= '/paginaProfilo/:id' element={<Container className='pt-3'><PaginaProfilo /></Container>} />
 
           <Route path='/appuntamenti' element={<Appuntamenti />} />
+
+          <Route path="/esami/:pazienteId" element={<Esami />} />
 
           <Route path="/diagnosi/:pazienteId" element={<DiagnosiPaziente />} />
          

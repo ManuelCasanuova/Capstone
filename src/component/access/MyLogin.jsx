@@ -2,17 +2,20 @@ import React, { useState } from "react";
 import { Button, Image, InputGroup } from "react-bootstrap";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
-import { fetchLogin } from "../../redux/actions";
 import { Eye, EyeSlash } from "react-bootstrap-icons";
 import logo from "../../assets/Logo.png";
+import { useAuth } from "./AuthContext";
 
 function MyLogin() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { login } = useAuth(); 
 
   const [formData, setFormData] = useState({ username: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -23,10 +26,35 @@ function MyLogin() {
     setShowPassword((prev) => !prev);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    dispatch(fetchLogin(formData.username, formData.password, navigate));
+
+    try {
+      const res = await fetch(`${apiUrl}/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      if (!res.ok) {
+        setError("Credenziali non valide");
+        return;
+      }
+
+      const data = await res.json();
+      const token = data.token;
+
+      if (token) {
+        login(token); 
+        navigate("/dashboard");
+      } else {
+        setError("Token mancante nella risposta");
+      }
+    } catch (err) {
+      console.error("Errore login:", err);
+      setError("Errore durante l'accesso");
+    }
   };
 
   return (

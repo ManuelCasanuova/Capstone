@@ -2,9 +2,13 @@ import React, { useState } from "react";
 import { Form, Button, Container, Alert, InputGroup } from "react-bootstrap";
 import { Eye, EyeSlash } from "react-bootstrap-icons";
 import { useNavigate } from "react-router";
+import { useAuth } from "./AuthContext";
+
 
 function CambioPassword() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+
   const [formData, setFormData] = useState({
     oldPassword: "",
     newPassword: "",
@@ -41,7 +45,6 @@ function CambioPassword() {
 
     try {
       const token = localStorage.getItem("token");
-      const username = JSON.parse(atob(token.split('.')[1])).sub;
 
       const response = await fetch("http://localhost:8080/change-password", {
         method: "PUT",
@@ -50,7 +53,7 @@ function CambioPassword() {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          username,
+          username: user?.username,
           oldPassword: formData.oldPassword,
           newPassword: formData.newPassword,
         }),

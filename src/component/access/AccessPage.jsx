@@ -1,11 +1,12 @@
-import { Container } from "react-bootstrap"
 import MyLogin from "./MyLogin";
 import Dashboard from "../Home/Dashboard";
+import { useAuth } from "./AuthContext";
+
 
 const AccessPage = () => {
-    
-        const token = localStorage.getItem("token");    
-        return <>{token ? <Dashboard /> : <MyLogin />}</>;
-    
-    }
-export default AccessPage;  
+  const { user } = useAuth();
+
+  return <>{user ? <Dashboard /> : <MyLogin />}</>;
+};
+
+export default AccessPage;

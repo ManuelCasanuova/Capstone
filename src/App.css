@@ -21,7 +21,7 @@ h1, h2, h3, h4, h5, h6, p {
 }
 
 .login-background {
-  background-image: url("./assets/login-bg.png"); /* o "/assets/..." se sta in public */
+  background-image: url("./assets/login-bg.png");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -29,8 +29,8 @@ h1, h2, h3, h4, h5, h6, p {
   width: 100vw;
   position: relative;
   display: flex;
-  justify-content: center; /* spinge il contenuto a destra */
-  align-items: center;       /* centra verticalmente */
+  justify-content: center; 
+  align-items: center;      
        
 }
 
@@ -54,7 +54,7 @@ h1, h2, h3, h4, h5, h6, p {
 .login-content-wrapper {
   width: 90%;
   max-width: 1600px;
-  margin: 0 auto; /* ✅ centra il wrapper */
+  margin: 0 auto;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -135,6 +135,7 @@ h1, h2, h3, h4, h5, h6, p {
   max-height: 201px;
 }
 
+
 .colorDiv {
   background-color: white;
 }
@@ -179,7 +180,7 @@ h1, h2, h3, h4, h5, h6, p {
 
 /* Data selezionata */
 .react-calendar__tile--active {
-  background: #053961 !important; /* blu scuro */
+  background: #053961 !important; 
   color: white !important;
   border-radius: 8px !important;
 }
@@ -204,4 +205,18 @@ h1, h2, h3, h4, h5, h6, p {
   background: transparent;
   border: none;
 }
+
+/*Tabella ESAMI Paziente*/
+
+.riga-esame {
+  color: #053961 !important;
+  background-color: white !important;
+  
+}
+
+.riga-esame:hover {
+  background-color: #2EB0A0 !important;
+  color: white !important;
+}
+
 

@@ -16,13 +16,9 @@ const CardPazienti = ({ utente }) => {
       <Card.Body>
         <h5>{utente.cognome}</h5>
         <p>{utente.nome}</p>
-        <Link
-          to={`/paginaProfilo/${utente.id}`}
-          state={utente}
-          className="btn btn-outline-primary w-100 mt-3"
-        >
-          Vai al profilo
-        </Link>
+       <Link to={`/paginaProfilo/${utente.id}`} className="btn btn-outline-primary w-100 mt-3">
+  Vai al profilo
+</Link>
       </Card.Body>
     </Card>
   );
