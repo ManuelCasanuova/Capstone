@@ -3,16 +3,23 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../access/AuthContext";
 import Profilo from "./Profilo";
 import SideBar from "./SideBar";
+import ModaleConferma from "../modali/ModaleConferma";
 import { Container, Row, Col, Spinner, Image } from "react-bootstrap";
+import { Power } from "react-bootstrap-icons";
 import logo from "../../assets/Logo.png";
+import cuore from "../../assets/Cuore.png";
+import { useNavigate } from "react-router";
+import { Modal } from "bootstrap";
 
 const PaginaProfilo = () => {
   const { id } = useParams();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const apiUrl = import.meta.env.VITE_API_URL;
 
   const [paziente, setPaziente] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showModaleLogout, setShowModaleLogout] = useState(false);
 
   const isMedico = user?.roles?.includes("ROLE_ADMIN");
   const isViewingOwnProfile = user?.id?.toString() === id;
@@ -41,22 +48,54 @@ const PaginaProfilo = () => {
   }, [id, apiUrl, isViewingOwnProfile]);
 
   const datiDaMostrare = isViewingOwnProfile ? user : paziente;
-
   const shouldShowSidebar = !isMedico || (isMedico && !isViewingOwnProfile);
 
+  const handleLogout = () => {
+    const modalElement = document.querySelector(".modal");
+    const modal = Modal.getInstance(modalElement);
+    if (modal) modal.hide();
+    setShowModaleLogout(false);
+
+    setTimeout(() => {
+      logout();
+      navigate("/login");
+    }, 200);
+  };
+
   return (
-    <Container>
-      <Row className="align-items-center mt-5 mb-3">
-        <Col>
+    <Container className="position-relative">
+    
+      <Image
+        src={cuore}
+        alt="Cuore"
+        className="d-block d-md-none position-absolute"
+        style={{
+          top: "0px",
+          right: "15px",
+          width: "30px",
+          zIndex: 10,
+        }}
+      />
+
+   
+      <Row className="align-items-center my-4">
+        <Col xs={12} md={8}>
           <h2>Profilo</h2>
         </Col>
-        <Col xs="auto">
-          <Image src={logo} alt="Logo" fluid style={{ width: "150px" }} />
+        <Col xs={12} md={4} className="text-md-end text-center mt-3 mt-md-0">
+          <Image
+            src={logo}
+            alt="Logo"
+            fluid
+            className="d-none d-md-block"
+            style={{ maxWidth: "150px" }}
+          />
         </Col>
       </Row>
 
+      
       <Row>
-        <Col xs={7} className="d-flex justify-content-center">
+        <Col xs={12} md={7} className="d-flex justify-content-center mb-4 mb-md-0">
           {loading ? (
             <Spinner animation="border" />
           ) : datiDaMostrare ? (
@@ -66,17 +105,50 @@ const PaginaProfilo = () => {
           )}
         </Col>
 
-        <Col xs={5} className="d-flex justify-content-center">
+        <Col xs={12} md={5} className="d-flex flex-column align-items-center">
           {shouldShowSidebar && datiDaMostrare?.id && (
-            <SideBar pazienteId={datiDaMostrare.id} />
+            <>
+              <SideBar pazienteId={datiDaMostrare.id} />
+
+             
+              <div className="d-flex justify-content-center mt-4">
+                <div
+                  onClick={() => setShowModaleLogout(true)}
+                  style={{
+                    cursor: "pointer",
+                    backgroundColor: "#E3F2FD",
+                    width: "50px",
+                    height: "50px",
+                    borderRadius: "50%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Power size={24} color="#074662" />
+                </div>
+              </div>
+            </>
           )}
         </Col>
       </Row>
+
+     
+      <ModaleConferma
+        show={showModaleLogout}
+        onConferma={handleLogout}
+        onClose={() => setShowModaleLogout(false)}
+        messaggio="Sei sicuro di voler effettuare il logout?"
+      />
     </Container>
   );
 };
 
 export default PaginaProfilo;
+
+
+
+
 
 
 

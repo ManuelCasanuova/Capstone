@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { Button, Image, InputGroup } from "react-bootstrap";
-import { useNavigate } from "react-router";
+import { Button, Image, InputGroup, Container, Row, Col } from "react-bootstrap";
 import { Eye, EyeSlash } from "react-bootstrap-icons";
-import logo from "../../assets/Logo.png";
+import { useNavigate } from "react-router";
 import { useAuth } from "./AuthContext";
+import logo from "../../assets/Logo.png"; 
 
 function MyLogin() {
   const navigate = useNavigate();
@@ -45,12 +45,7 @@ function MyLogin() {
 
       if (token) {
         login(token);
-
-        if (data.changePasswordRequired) {
-          navigate("/cambio-password", { replace: true });
-        } else {
-          navigate("/dashboard");
-        }
+        navigate("/dashboard");
       } else {
         setError("Token mancante nella risposta");
       }
@@ -61,71 +56,62 @@ function MyLogin() {
   };
 
   return (
-    <div className="login-background">
-      <div className="logo-top-left">
-        <Image src={logo} alt="Logo" fluid style={{ width: "160px" }} />
-      </div>
+    <Container fluid className="login-background d-flex align-items-center justify-content-center">
+      <Row className="w-100 justify-content-center">
+        <Col xs={11} sm={8} md={6} lg={4}>
+          <div className="logo-top-left ">
+            <Image src={logo} alt="Logo" fluid style={{ width: "160px" }} />
+          </div>
 
-      <div className="login-content-wrapper">
-        <div className="slogan-box">
-          <h3 className="slogan-text">
-            Tecnologia al servizio della cura,
-            <br />
-            per medici e pazienti.
-          </h3>
-        </div>
+          <div className="login-box">
+            <h2 className="text-center mb-4">Accedi</h2>
+            {error && <p className="text-danger text-center">{error}</p>}
 
-        <div className="login-box">
-          <h2 className="text-center mb-4">Accedi</h2>
-          {error && <p className="text-danger text-center">{error}</p>}
-
-          <form onSubmit={handleSubmit}>
-            <div className="mb-3">
-              <label htmlFor="username" className="form-label">
-                Username
-              </label>
-              <input
-                id="username"
-                className="form-control"
-                type="text"
-                name="username"
-                value={formData.username}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div className="mb-4">
-              <label htmlFor="password" className="form-label">
-                Password
-              </label>
-              <InputGroup>
+            <form onSubmit={handleSubmit}>
+              <div className="mb-3">
+                <label htmlFor="username" className="form-label">Username</label>
                 <input
-                  id="password"
+                  id="username"
                   className="form-control"
-                  type={showPassword ? "text" : "password"}
-                  name="password"
-                  value={formData.password}
+                  type="text"
+                  name="username"
+                  value={formData.username}
                   onChange={handleChange}
                   required
                 />
-                <Button variant="outline-secondary" onClick={togglePasswordVisibility}>
-                  {showPassword ? <EyeSlash /> : <Eye />}
-                </Button>
-              </InputGroup>
-            </div>
+              </div>
 
-            <div className="d-grid">
-              <Button type="submit" variant="success" size="lg">
-                Login
-              </Button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
+              <div className="mb-4">
+                <label htmlFor="password" className="form-label">Password</label>
+                <InputGroup>
+                  <input
+                    id="password"
+                    className="form-control"
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    required
+                  />
+                  <Button variant="outline-secondary" onClick={togglePasswordVisibility} type="button">
+                    {showPassword ? <EyeSlash /> : <Eye />}
+                  </Button>
+                </InputGroup>
+              </div>
+
+              <div className="d-grid">
+                <Button type="submit" variant="success" size="lg">
+                  Login
+                </Button>
+              </div>
+            </form>
+          </div>
+        </Col>
+      </Row>
+    </Container>
   );
 }
 
 export default MyLogin;
+
 

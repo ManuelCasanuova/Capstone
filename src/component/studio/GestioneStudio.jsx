@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Button, Col, Form, Row, Spinner, Alert, Card, Container } from "react-bootstrap";
+import { Button, Col, Form, Row, Spinner, Alert, Card } from "react-bootstrap";
 import { useAuth } from "../access/AuthContext";
 
 const GIORNI_SETTIMANA = [
@@ -28,17 +28,16 @@ const GestioneStudio = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [editMode, setEditMode] = useState(false);
-
   const [alert, setAlert] = useState({ show: false, variant: "", message: "" });
-  const timerRef = useRef(null);
 
+  const timerRef = useRef(null);
   const apiUrl = import.meta.env.VITE_API_URL;
 
   const showAlert = (variant, message) => {
     setAlert({ show: true, variant, message });
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => {
-      setAlert(prev => ({ ...prev, show: false }));
+      setAlert({ show: false, variant: "", message: "" });
     }, 3000);
   };
 
@@ -49,43 +48,33 @@ const GestioneStudio = () => {
   };
 
   useEffect(() => {
-    const fetchOrari = async () => {
+    const fetchData = async () => {
       try {
-        const res = await fetch(`${apiUrl}/studio/orari`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!res.ok) throw new Error("Errore nel caricamento degli orari");
-        let data = await res.json();
-        data = data.map((g) =>
+        const [resStudio, resOrari] = await Promise.all([
+          fetch(`${apiUrl}/studio`, { headers: { Authorization: `Bearer ${token}` } }),
+          fetch(`${apiUrl}/studio/orari`, { headers: { Authorization: `Bearer ${token}` } }),
+        ]);
+
+        if (!resStudio.ok) throw new Error("Errore nel caricamento dello studio");
+        if (!resOrari.ok) throw new Error("Errore nel caricamento degli orari");
+
+        const studioData = await resStudio.json();
+        let orari = await resOrari.json();
+        orari = orari.map(g =>
           g.giorno === "SATURDAY" || g.giorno === "SUNDAY" ? { ...g, chiuso: true } : g
         );
-        setGiorni(data);
-      } catch (error) {
-        showAlert("danger", error.message);
-      }
-    };
 
-    const fetchStudioEOrari = async () => {
-      try {
-        const res = await fetch(`${apiUrl}/studio`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!res.ok) throw new Error("Errore nel caricamento dello studio");
-        const studioData = await res.json();
         setStudio(studioData);
-        await fetchOrari();
-      } catch (error) {
-        showAlert("danger", error.message);
+        setGiorni(orari);
+      } catch (err) {
+        showAlert("danger", err.message);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchStudioEOrari();
-
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
+    fetchData();
+    return () => timerRef.current && clearTimeout(timerRef.current);
   }, [apiUrl, token]);
 
   const handleStudioChange = (e) => {
@@ -109,78 +98,37 @@ const GestioneStudio = () => {
         nuovi[index].finePomeriggio = null;
       }
     } else if (campo === "chiusuraMattina") {
-      if (checked) {
-        nuovi[index].inizioMattina = null;
-        nuovi[index].fineMattina = null;
-      } else {
-        nuovi[index].inizioMattina = "08:00";
-        nuovi[index].fineMattina = "13:00";
-      }
+      nuovi[index].inizioMattina = checked ? null : "08:00";
+      nuovi[index].fineMattina = checked ? null : "13:00";
     } else if (campo === "chiusuraPomeriggio") {
-      if (checked) {
-        nuovi[index].inizioPomeriggio = null;
-        nuovi[index].finePomeriggio = null;
-      } else {
-        nuovi[index].inizioPomeriggio = "14:00";
-        nuovi[index].finePomeriggio = "18:00";
-      }
+      nuovi[index].inizioPomeriggio = checked ? null : "14:00";
+      nuovi[index].finePomeriggio = checked ? null : "18:00";
     }
     setGiorni(nuovi);
-  };
-
-  const safeJson = async (response) => {
-    if (response.status === 204) return null;
-    const text = await response.text();
-    return text ? JSON.parse(text) : null;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
-
     try {
       const res1 = await fetch(`${apiUrl}/studio`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify(studio),
       });
-      if (!res1.ok) throw new Error("Errore durante il salvataggio dello studio");
-      await safeJson(res1);
+      if (!res1.ok) throw new Error("Errore salvataggio studio");
 
       const res2 = await fetch(`${apiUrl}/studio/orari`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify(giorni),
       });
-      if (!res2.ok) throw new Error("Errore durante il salvataggio degli orari");
-      await safeJson(res2);
+      if (!res2.ok) throw new Error("Errore salvataggio orari");
 
-      showAlert("success", "Modifiche salvate correttamente!");
+      showAlert("success", "Modifiche salvate con successo!");
       setEditMode(false);
-
-      // Ricarica i dati aggiornati
-      const resStudio = await fetch(`${apiUrl}/studio`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const updatedStudio = await resStudio.json();
-      setStudio(updatedStudio);
-
-      const resOrari = await fetch(`${apiUrl}/studio/orari`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      let updatedOrari = await resOrari.json();
-      updatedOrari = updatedOrari.map((g) =>
-        g.giorno === "SATURDAY" || g.giorno === "SUNDAY" ? { ...g, chiuso: true } : g
-      );
-      setGiorni(updatedOrari);
-    } catch (error) {
-      showAlert("danger", error.message || "Errore durante il salvataggio");
+    } catch (err) {
+      showAlert("danger", err.message);
     } finally {
       setSaving(false);
     }
@@ -190,7 +138,7 @@ const GestioneStudio = () => {
   if (!studio) return <Alert variant="danger">Studio non trovato</Alert>;
 
   return (
-    <Container>
+    <>
       {alert.show && (
         <Alert variant={alert.variant} onClose={handleCloseAlert} dismissible>
           {alert.message}
@@ -200,55 +148,38 @@ const GestioneStudio = () => {
       <Card className="mb-3 p-3 shadow-sm">
         <h4 className="mb-4">Orari di apertura studio</h4>
         <h5>{studio.nome}</h5>
-        <p className="mb-2">
-          <strong>Indirizzo:</strong> {studio.indirizzo}
-        </p>
+        <p><strong>Indirizzo:</strong> {studio.indirizzo}</p>
 
         {giorni
-          .filter((g) => g.giorno !== "SATURDAY" && g.giorno !== "SUNDAY")
+          .filter(g => g.giorno !== "SATURDAY" && g.giorno !== "SUNDAY")
           .map((g, i) => {
-            const label =
-              GIORNI_SETTIMANA.find((day) => day.key === g.giorno)?.nome || g.giorno;
+            const label = GIORNI_SETTIMANA.find(d => d.key === g.giorno)?.nome || g.giorno;
+
             return (
               <div key={g.giorno} className="mb-3 border rounded p-3 bg-light">
-                <Row
-                  className={`align-items-center mb-2 justify-content-between ${
-                    isMedico && editMode ? "text-center" : ""
-                  }`}
-                >
-                  <Col md={3} className={isMedico && editMode ? "mx-auto" : ""}>
+                <Row className="align-items-center mb-2">
+                  <Col md={3}>
                     <strong>{label}</strong>
                   </Col>
 
                   {isMedico && editMode ? (
-                    <Col
-                      md={9}
-                      className="d-flex align-items-center gap-3 justify-content-center"
-                    >
-                      <strong className="me-3">Chiusura:</strong>
-
+                    <Col md={9} className="d-flex flex-wrap gap-3 justify-content-center text-center">
                       <Form.Check
                         label="Giornaliera"
                         checked={g.chiuso}
-                        onChange={(e) =>
-                          handleCheckboxChange(i, "chiuso", e.target.checked)
-                        }
+                        onChange={(e) => handleCheckboxChange(i, "chiuso", e.target.checked)}
                       />
                       <Form.Check
                         label="Mattina"
                         checked={!g.inizioMattina}
                         disabled={g.chiuso}
-                        onChange={(e) =>
-                          handleCheckboxChange(i, "chiusuraMattina", e.target.checked)
-                        }
+                        onChange={(e) => handleCheckboxChange(i, "chiusuraMattina", e.target.checked)}
                       />
                       <Form.Check
                         label="Pomeriggio"
                         checked={!g.inizioPomeriggio}
                         disabled={g.chiuso}
-                        onChange={(e) =>
-                          handleCheckboxChange(i, "chiusuraPomeriggio", e.target.checked)
-                        }
+                        onChange={(e) => handleCheckboxChange(i, "chiusuraPomeriggio", e.target.checked)}
                       />
                     </Col>
                   ) : (
@@ -257,26 +188,12 @@ const GestioneStudio = () => {
                         <p className="text-danger">Chiusura Giornaliera</p>
                       ) : (
                         <>
-                          <p>
-                            <strong>Mattina:</strong>{" "}
-                            {!isClosed(g.inizioMattina, g.fineMattina) ? (
-                              `${formatTime(g.inizioMattina)} - ${formatTime(
-                                g.fineMattina
-                              )}`
-                            ) : (
-                              <span className="text-danger">Chiuso</span>
-                            )}
-                          </p>
-                          <p>
-                            <strong>Pomeriggio:</strong>{" "}
-                            {!isClosed(g.inizioPomeriggio, g.finePomeriggio) ? (
-                              `${formatTime(g.inizioPomeriggio)} - ${formatTime(
-                                g.finePomeriggio
-                              )}`
-                            ) : (
-                              <span className="text-danger">Chiuso</span>
-                            )}
-                          </p>
+                          <p><strong>Mattina:</strong> {!isClosed(g.inizioMattina, g.fineMattina)
+                            ? `${formatTime(g.inizioMattina)} - ${formatTime(g.fineMattina)}`
+                            : <span className="text-danger">Chiuso</span>}</p>
+                          <p><strong>Pomeriggio:</strong> {!isClosed(g.inizioPomeriggio, g.finePomeriggio)
+                            ? `${formatTime(g.inizioPomeriggio)} - ${formatTime(g.finePomeriggio)}`
+                            : <span className="text-danger">Chiuso</span>}</p>
                         </>
                       )}
                     </Col>
@@ -285,48 +202,40 @@ const GestioneStudio = () => {
 
                 {isMedico && editMode && !g.chiuso && (
                   <Row className="justify-content-center">
-                    <Col md={3} className="d-flex flex-column align-items-center">
+                    <Col xs={6} md={3} className="d-flex flex-column align-items-center mb-3">
                       <Form.Label>Apertura M.</Form.Label>
                       <Form.Control
                         type="time"
                         value={g.inizioMattina || ""}
                         disabled={!g.inizioMattina}
-                        onChange={(e) =>
-                          handleOrarioChange(i, "inizioMattina", e.target.value)
-                        }
+                        onChange={(e) => handleOrarioChange(i, "inizioMattina", e.target.value)}
                       />
                     </Col>
-                    <Col md={3} className="d-flex flex-column align-items-center">
+                    <Col xs={6} md={3} className="d-flex flex-column align-items-center mb-3">
                       <Form.Label>Chiusura M.</Form.Label>
                       <Form.Control
                         type="time"
                         value={g.fineMattina || ""}
                         disabled={!g.inizioMattina}
-                        onChange={(e) =>
-                          handleOrarioChange(i, "fineMattina", e.target.value)
-                        }
+                        onChange={(e) => handleOrarioChange(i, "fineMattina", e.target.value)}
                       />
                     </Col>
-                    <Col md={3} className="d-flex flex-column align-items-center">
+                    <Col xs={6} md={3} className="d-flex flex-column align-items-center mb-3">
                       <Form.Label>Apertura P.</Form.Label>
                       <Form.Control
                         type="time"
                         value={g.inizioPomeriggio || ""}
                         disabled={!g.inizioPomeriggio}
-                        onChange={(e) =>
-                          handleOrarioChange(i, "inizioPomeriggio", e.target.value)
-                        }
+                        onChange={(e) => handleOrarioChange(i, "inizioPomeriggio", e.target.value)}
                       />
                     </Col>
-                    <Col md={3} className="d-flex flex-column align-items-center">
+                    <Col xs={6} md={3} className="d-flex flex-column align-items-center mb-3">
                       <Form.Label>Chiusura P.</Form.Label>
                       <Form.Control
                         type="time"
                         value={g.finePomeriggio || ""}
                         disabled={!g.inizioPomeriggio}
-                        onChange={(e) =>
-                          handleOrarioChange(i, "finePomeriggio", e.target.value)
-                        }
+                        onChange={(e) => handleOrarioChange(i, "finePomeriggio", e.target.value)}
                       />
                     </Col>
                   </Row>
@@ -336,22 +245,15 @@ const GestioneStudio = () => {
           })}
 
         {isMedico && !editMode && (
-          <Button variant="primary" onClick={() => setEditMode(true)}>
-            Modifica Orari
-          </Button>
+          <Button variant="primary" onClick={() => setEditMode(true)}>Modifica Orari</Button>
         )}
         {isMedico && editMode && (
-          <Button
-            type="button"
-            variant="primary"
-            disabled={saving}
-            onClick={handleSubmit}
-          >
+          <Button variant="primary" disabled={saving} onClick={handleSubmit}>
             {saving ? "Salvataggio..." : "Salva modifiche"}
           </Button>
         )}
       </Card>
-    </Container>
+    </>
   );
 };
 

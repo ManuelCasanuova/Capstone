@@ -22,24 +22,24 @@ import MobileNav from './component/NavBar/MobileNav'
 
 function AppWrapper() {
   const location = useLocation();
- 
-  const mostraNavbar = location.pathname !== "/cambio-password";
+
+  const nascondiNavbarIn = ["/login", "/cambio-password", "/"];
+  const mostraNavbar = !nascondiNavbarIn.includes(location.pathname);
 
   return (
     <>
       {mostraNavbar && (
         <>
-       
           <div className="d-block d-md-none">
             <MobileNav />
           </div>
 
-          
           <div className="d-none d-md-block">
             <MyNavbar />
           </div>
         </>
       )}
+
       <Routes>
         <Route path="/" element={<AccessPage />} />
         <Route path="/login" element={<MyLogin />} />
@@ -56,6 +56,7 @@ function AppWrapper() {
     </>
   );
 }
+
 
 function App() {
   return (

@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Button, Container, Image, Alert } from "react-bootstrap";
-import { Person } from "react-bootstrap-icons";
+import { Button, Card, Image, Alert } from "react-bootstrap";
+import { Pencil, Person } from "react-bootstrap-icons";
 import { useDispatch } from "react-redux";
 
 import ModaleModificaPaziente from "../modali/ModaleModificaPaziente";
@@ -19,8 +19,8 @@ const Profilo = ({ utente }) => {
   const [alert, setAlert] = useState({ show: false, variant: "", message: "" });
 
   const canModify =
-    (isMedico && datiUtente) || // medico può modificare qualsiasi profilo paziente
-    (isPaziente && datiUtente.id === user.id); // paziente solo il proprio
+    (isMedico && datiUtente) ||
+    (isPaziente && datiUtente.id === user.id);
 
   const handleSave = async (updatedPaziente) => {
     const token = localStorage.getItem("token");
@@ -36,49 +36,36 @@ const Profilo = ({ utente }) => {
 
   return (
     <>
-      <div
-        style={{
-          position: "fixed",
-          top: 10,
-          left: "50%",
-          transform: "translateX(-50%)",
-          zIndex: 1050,
-          width: "90%",
-          maxWidth: 500,
-        }}
-      >
-        {alert.show && (
-          <Alert variant={alert.variant} onClose={() => setAlert({ show: false })} dismissible>
-            {alert.message}
-          </Alert>
-        )}
-      </div>
+      {alert.show && (
+        <Alert variant={alert.variant} dismissible onClose={() => setAlert({ show: false })}>
+          {alert.message}
+        </Alert>
+      )}
 
-      <Container
-        className="rounded-3 border shadow-sm bg-white p-4"
-        style={{ maxWidth: 600, marginTop: "6rem" }}
-      >
+      <Card className="p-4 shadow-sm position-relative">
         <h3 className="d-flex align-items-center justify-content-center mb-4">
           <Person className="me-2" size={26} />
           {isMedico ? "Profilo Medico / Paziente" : "Informazioni Personali"}
         </h3>
 
-        <div className="d-flex align-items-center mb-4">
+        <div className="d-flex flex-column align-items-center text-center mb-4">
           <Image
             src={datiUtente?.avatar || ""}
             roundedCircle
-            style={{ width: 60, height: 60, objectFit: "cover" }}
-            className="me-3"
+            style={{ width: 80, height: 80, objectFit: "cover" }}
+            className="mb-3"
           />
-          <div>
-            <h4 className="mb-1">
-              {datiUtente?.nome || "-"} {datiUtente?.cognome || ""}
-            </h4>
-            <p className="mb-0">{isMedico ? datiUtente?.email : datiUtente?.dataDiNascita || "-"}</p>
-          </div>
+          <h4 className="mb-1">{datiUtente?.nome || "-"} {datiUtente?.cognome || ""}</h4>
+          <p className="mb-0">
+            {isMedico
+              ? datiUtente?.email
+              : datiUtente?.dataDiNascita
+                ? new Date(datiUtente?.dataDiNascita).toLocaleDateString("it-IT")
+                : "-"}
+          </p>
         </div>
 
-        <div className="ms-4 mb-4">
+        <div className="ms-2 mb-4">
           {isMedico && datiUtente?.studio ? (
             <>
               <p><strong>Studio:</strong> {datiUtente.studio?.nome || "-"}</p>
@@ -101,12 +88,42 @@ const Profilo = ({ utente }) => {
           )}
         </div>
 
+   
         {canModify && (
-          <Button variant="primary" onClick={() => setShowModale(true)}>
+          <Button
+            variant="primary"
+            onClick={() => setShowModale(true)}
+            className="d-none d-md-block"
+          >
             Modifica Profilo
           </Button>
         )}
-      </Container>
+
+       
+        {canModify && (
+          <div
+            className="d-md-none"
+            style={{
+              position: "absolute",
+              bottom: "10px",
+              right: "16px",
+              width: "52px",
+              height: "52px",
+              borderRadius: "50%",
+              backgroundColor: "#074662",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 10,
+              cursor: "pointer",
+              boxShadow: "0 0 8px rgba(0,0,0,0.2)"
+            }}
+            onClick={() => setShowModale(true)}
+          >
+            <Pencil color="white" size={22} />
+          </div>
+        )}
+      </Card>
 
       {canModify && (
         <ModaleModificaPaziente
@@ -121,4 +138,11 @@ const Profilo = ({ utente }) => {
 };
 
 export default Profilo;
+
+
+
+
+
+
+
 
