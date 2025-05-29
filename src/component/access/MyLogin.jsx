@@ -1,15 +1,13 @@
 import React, { useState } from "react";
 import { Button, Image, InputGroup } from "react-bootstrap";
-import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
 import { Eye, EyeSlash } from "react-bootstrap-icons";
 import logo from "../../assets/Logo.png";
 import { useAuth } from "./AuthContext";
 
 function MyLogin() {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { login } = useAuth(); 
+  const { login } = useAuth();
 
   const [formData, setFormData] = useState({ username: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
@@ -46,8 +44,13 @@ function MyLogin() {
       const token = data.token;
 
       if (token) {
-        login(token); 
-        navigate("/dashboard");
+        login(token);
+
+        if (data.changePasswordRequired) {
+          navigate("/cambio-password", { replace: true });
+        } else {
+          navigate("/dashboard");
+        }
       } else {
         setError("Token mancante nella risposta");
       }
@@ -66,7 +69,9 @@ function MyLogin() {
       <div className="login-content-wrapper">
         <div className="slogan-box">
           <h3 className="slogan-text">
-            Tecnologia al servizio della cura,<br />per medici e pazienti.
+            Tecnologia al servizio della cura,
+            <br />
+            per medici e pazienti.
           </h3>
         </div>
 
@@ -76,7 +81,9 @@ function MyLogin() {
 
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
-              <label htmlFor="username" className="form-label">Username</label>
+              <label htmlFor="username" className="form-label">
+                Username
+              </label>
               <input
                 id="username"
                 className="form-control"
@@ -89,7 +96,9 @@ function MyLogin() {
             </div>
 
             <div className="mb-4">
-              <label htmlFor="password" className="form-label">Password</label>
+              <label htmlFor="password" className="form-label">
+                Password
+              </label>
               <InputGroup>
                 <input
                   id="password"
@@ -119,3 +128,4 @@ function MyLogin() {
 }
 
 export default MyLogin;
+

@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
+import { useNavigate } from "react-router";
 
 const ModaleModificaPaziente = ({ show, onHide, utente, onSave }) => {
   const [formData, setFormData] = useState({ ...utente });
+  const navigate = useNavigate();
 
   useEffect(() => {
     setFormData({ ...utente });
@@ -17,6 +19,11 @@ const ModaleModificaPaziente = ({ show, onHide, utente, onSave }) => {
     e.preventDefault();
     onSave(formData);
     onHide();
+  };
+
+  const handleCambiaPassword = () => {
+    onHide();
+    navigate("/cambio-password");
   };
 
   return (
@@ -65,7 +72,7 @@ const ModaleModificaPaziente = ({ show, onHide, utente, onSave }) => {
             <Form.Control
               type="date"
               name="dataDiNascita"
-              value={formData.dataDiNascita ? formData.dataDiNascita.substring(0,10) : ""}
+              value={formData.dataDiNascita ? formData.dataDiNascita.substring(0, 10) : ""}
               onChange={handleChange}
               required
             />
@@ -178,26 +185,19 @@ const ModaleModificaPaziente = ({ show, onHide, utente, onSave }) => {
             />
           </Form.Group>
 
-          <Form.Group className="mb-3">
-            <Form.Label>Nuova Password</Form.Label>
-            <Form.Control
-              type="password"
-              name="password"
-              value={formData.password || ""}
-              onChange={handleChange}
-              placeholder="Lascia vuoto per non modificare"/>
-           </Form.Group>
-
-
-          <div className="d-flex justify-content-end">
-            <Button variant="secondary" onClick={onHide} className="me-2">
-              Annulla
+          <div className="d-flex justify-content-between align-items-center mt-4">
+            <Button variant="outline-secondary" onClick={handleCambiaPassword}>
+              Cambia Password
             </Button>
-            <Button type="submit" variant="success">
-              Salva
-            </Button>
+            <div>
+              <Button variant="secondary" onClick={onHide} className="me-2">
+                Annulla
+              </Button>
+              <Button type="submit" variant="success">
+                Salva
+              </Button>
+            </div>
           </div>
-
         </Form>
       </Modal.Body>
     </Modal>
@@ -205,3 +205,5 @@ const ModaleModificaPaziente = ({ show, onHide, utente, onSave }) => {
 };
 
 export default ModaleModificaPaziente;
+
+

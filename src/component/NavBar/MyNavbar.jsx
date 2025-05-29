@@ -42,7 +42,7 @@ const MyNavbar = () => {
         className="d-flex justify-content-center align-items-center"
       >
         <Image
-          src={user?.avatar || "https://via.placeholder.com/50"}
+          src={user?.avatar}
           roundedCircle
           width={50}
           height={50}

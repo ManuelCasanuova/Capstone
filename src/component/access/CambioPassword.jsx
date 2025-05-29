@@ -23,6 +23,7 @@ function CambioPassword() {
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   const toggleVisibility = (field) => {
     setShowPassword((prev) => ({ ...prev, [field]: !prev[field] }));
@@ -46,7 +47,7 @@ function CambioPassword() {
     try {
       const token = localStorage.getItem("token");
 
-      const response = await fetch("http://localhost:8080/change-password", {
+      const response = await fetch(apiUrl + "/change-password", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
