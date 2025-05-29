@@ -32,7 +32,7 @@ const AppuntamentiOggi = () => {
   }, [appuntamentiRedux]);
 
   return (
-    <Container >
+    <Container className="border rounded-3 shadow-sm p-4" >
       <h4 className="mb-3">Appuntamenti di oggi</h4>
       {appuntamentiOggi.length > 0 ? (
         <ListGroup>
@@ -42,11 +42,11 @@ const AppuntamentiOggi = () => {
               className="d-flex justify-content-between align-items-center"
             >
               <div>
-                <strong>{app.nome} {app.cognome}</strong>
+                <strong style={{color: "#053961"}}>{app.nome} {app.cognome}</strong>
                 <br />
                 <small className="text-muted">{app.motivoRichiesta}</small>
               </div>
-              <Badge bg="info">
+              <Badge bg="success">
                 {new Date(app.dataOraAppuntamento).toLocaleTimeString([], {
                   hour: "2-digit",
                   minute: "2-digit",

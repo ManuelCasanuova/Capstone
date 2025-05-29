@@ -1,13 +1,5 @@
 import { useState, useEffect } from "react";
-import {
-  Container,
-  Row,
-  Col,
-  ListGroup,
-  Badge,
-  Button,
-  Alert,
-} from "react-bootstrap";
+import { Container, Row, Col, ListGroup, Badge, Button, Alert } from "react-bootstrap";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import logo from "../../assets/Logo.png";
@@ -54,8 +46,9 @@ const Appuntamenti = () => {
   }, [isPaziente, pazienteId, user, pazienteDaPassaggio]);
 
   useEffect(() => {
+    if (!token) return;
+
     const fetchAppuntamenti = async () => {
-      if (!token) return;
       try {
         const res = await fetch(`${import.meta.env.VITE_API_URL}/appuntamenti`, {
           headers: { Authorization: `Bearer ${token}` },
@@ -68,10 +61,8 @@ const Appuntamenti = () => {
         console.error("Errore fetch appuntamenti", error);
       }
     };
-    fetchAppuntamenti();
 
     const fetchOrariStudio = async () => {
-      if (!token) return;
       try {
         const res = await fetch(`${import.meta.env.VITE_API_URL}/studio/orari`, {
           headers: { Authorization: `Bearer ${token}` },
@@ -84,22 +75,47 @@ const Appuntamenti = () => {
         console.error("Errore fetch orari studio", error);
       }
     };
+
+    fetchAppuntamenti();
     fetchOrariStudio();
   }, [token]);
 
+  const aggiornaAppuntamenti = async (appuntamentoAggiornato) => {
+    setAppuntamenti((prev) => {
+      const index = prev.findIndex((a) => a.id === appuntamentoAggiornato.id);
+      if (index !== -1) {
+        const nuovi = [...prev];
+        nuovi[index] = appuntamentoAggiornato;
+        return nuovi;
+      } else {
+        return [appuntamentoAggiornato, ...prev];
+      }
+    });
+
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/appuntamenti`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const dati = await res.json();
+        setAppuntamenti(dati);
+      }
+    } catch (error) {
+      console.error("Errore ricarica appuntamenti dopo aggiornamento", error);
+    }
+  };
+
   useEffect(() => {
-    // filtro appuntamenti per data e per paziente (o admin)
     const filtered = appuntamenti.filter((app) => {
-      const isSameDay = new Date(app.dataOraAppuntamento).toDateString() === dataSelezionata.toDateString();
-      // confronto robusto tra id: convertiamo entrambi in stringa
-      const isPatientMatch = isAdmin || (String(app.pazienteId) === String(pazienteSelezionato?.id));
+      const isSameDay =
+        new Date(app.dataOraAppuntamento).toDateString() === dataSelezionata.toDateString();
+      const isPatientMatch = isAdmin || String(app.pazienteId) === String(pazienteSelezionato?.id);
       return isSameDay && isPatientMatch;
     });
 
     const ordinati = filtered.sort(
       (a, b) => new Date(a.dataOraAppuntamento) - new Date(b.dataOraAppuntamento)
     );
-
     setAppuntamentiGiorno(ordinati);
 
     const giornoSett = dataSelezionata
@@ -121,9 +137,7 @@ const Appuntamenti = () => {
       let [sh, sm] = start.split(":").map(Number);
       const [eh, em] = end.split(":").map(Number);
       while (sh < eh || (sh === eh && sm < em)) {
-        orariSlot.push(
-          `${sh.toString().padStart(2, "0")}:${sm.toString().padStart(2, "0")}`
-        );
+        orariSlot.push(`${sh.toString().padStart(2, "0")}:${sm.toString().padStart(2, "0")}`);
         sm += 30;
         if (sm >= 60) {
           sm = 0;
@@ -152,8 +166,7 @@ const Appuntamenti = () => {
       const [hh, mm] = orario.split(":");
       const slotTime = new Date(dataSelezionata);
       slotTime.setHours(parseInt(hh), parseInt(mm), 0, 0);
-      const isPast =
-        giornoSelezionato.getTime() === oggi.getTime() && slotTime < new Date();
+      const isPast = giornoSelezionato.getTime() === oggi.getTime() && slotTime < new Date();
       return !occupati.includes(orario) && !isPast;
     });
 
@@ -201,8 +214,7 @@ const Appuntamenti = () => {
     appuntamenti.some(
       (app) =>
         String(app.pazienteId) === String(pazienteSelezionato?.id) &&
-        new Date(app.dataOraAppuntamento).toDateString() ===
-          dataSelezionata.toDateString()
+        new Date(app.dataOraAppuntamento).toDateString() === dataSelezionata.toDateString()
     );
 
   const handleApriNuovoAppuntamento = () => {
@@ -241,8 +253,7 @@ const Appuntamenti = () => {
               if (view === "month") {
                 const count = appuntamenti.filter(
                   (app) =>
-                    new Date(app.dataOraAppuntamento).toDateString() ===
-                    date.toDateString()
+                    new Date(app.dataOraAppuntamento).toDateString() === date.toDateString()
                 ).length;
                 return count > 0 ? (
                   <Badge
@@ -325,20 +336,22 @@ const Appuntamenti = () => {
             </Alert>
           )}
 
+          {!haPrenotazioneInData && (
+            <Button variant="primary" className="mt-3" onClick={handleApriNuovoAppuntamento}>
+              Nuova prenotazione
+            </Button>
+          )}
+
           {showAlertChiuso && (
             <Alert variant="warning" className="mt-5">
               <p>
                 Non è più possibile prenotare per questa data, perché lo studio è chiuso
-                o tutti gli appuntamenti sono gia stati prenotati.
+                o tutti gli appuntamenti sono già stati prenotati.
               </p>
               <br />
               <p>Per appuntamenti urgenti, vi invitiamo a contattare lo studio.</p>
             </Alert>
           )}
-
-          <Button variant="primary" className="mt-3" onClick={handleApriNuovoAppuntamento}>
-            Nuova prenotazione
-          </Button>
         </Col>
       </Row>
 
@@ -353,6 +366,7 @@ const Appuntamenti = () => {
         pazienteId={pazienteSelezionato?.id}
         pazienteNome={pazienteSelezionato?.nome}
         pazienteCognome={pazienteSelezionato?.cognome}
+        onAppuntamentoSalvato={aggiornaAppuntamenti}
       />
 
       <ModaleConferma
@@ -369,19 +383,3 @@ const Appuntamenti = () => {
 };
 
 export default Appuntamenti;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

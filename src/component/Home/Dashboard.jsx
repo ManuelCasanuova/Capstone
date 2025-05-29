@@ -1,11 +1,12 @@
 import { Col, Container, Image, Row } from "react-bootstrap";
-import PrimoPiano from "./PrimoPiano";
+
 import { useNavigate } from "react-router";
 import { useEffect } from "react";
 import logo from "../../assets/Logo.png";
 import AppuntamentiOggi from "../Appuntamenti/AppuntamentiOggi";
 import GestioneStudio from "../studio/GestioneStudio";
 import { useAuth } from "../access/AuthContext";
+import Comunicazioni from "../comunicazioni/Comunicazioni";
 
 
 const Dashboard = () => {
@@ -47,7 +48,8 @@ const Dashboard = () => {
         </Col>
         <Col>
           <AppuntamentiOggi />
-          <PrimoPiano />
+          <Comunicazioni />
+          
         </Col>
       </Row>
     </Container>

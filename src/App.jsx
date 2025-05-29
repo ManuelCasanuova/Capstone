@@ -16,6 +16,7 @@ import CambioPassword from './component/access/CambioPassword'
 import AppuntamentiPaziente from './component/Appuntamenti/AppuntamentiPaziente'
 import DiagnosiPaziente from './component/diagnosi/DiagnosiPaziente'
 import Esami from './component/esami/Esami'
+import CatchAll from './component/catchAll/CatchAll'
 
 
 
@@ -63,6 +64,8 @@ function App() {
 
 
 
+
+          <Route path= '*' element={<CatchAll />} />
 
 
         </Routes>

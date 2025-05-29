@@ -18,6 +18,7 @@ const ModaleNuovoAppuntamento = ({
   pazienteId,
   pazienteNome,
   pazienteCognome,
+  onAppuntamentoSalvato,
 }) => {
   const dispatch = useDispatch();
 
@@ -30,7 +31,6 @@ const ModaleNuovoAppuntamento = ({
   const [successo, setSuccesso] = useState(null);
   const [errore, setErrore] = useState(null);
 
-  // Sincronizzo lo stato interno con le props all'apertura o cambiamento
   useEffect(() => {
     if (appuntamentoDaModificare) {
       setMotivo(appuntamentoDaModificare.motivoRichiesta || "");
@@ -53,7 +53,6 @@ const ModaleNuovoAppuntamento = ({
       setSuccesso(null);
       setErrore(null);
     } else {
-      // caso "nuovo" senza paziente predefinito
       setMotivo("");
       setOrarioSelezionato("");
       setNome("");
@@ -138,11 +137,32 @@ const ModaleNuovoAppuntamento = ({
         await dispatch(
           updateAppuntamento(token, appuntamentoDaModificare.id, payload)
         );
+
+        const res = await fetch(
+          `${import.meta.env.VITE_API_URL}/appuntamenti/${appuntamentoDaModificare.id}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        const updatedApp = await res.json();
+
+        if (onAppuntamentoSalvato) onAppuntamentoSalvato(updatedApp);
         setSuccesso("Appuntamento aggiornato con successo!");
       } else {
         await dispatch(createAppuntamento(token, payload));
+
+        const res = await fetch(
+          `${import.meta.env.VITE_API_URL}/appuntamenti/ultimo?pazienteId=${payload.pazienteId}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        const newApp = await res.json();
+
+        if (onAppuntamentoSalvato) onAppuntamentoSalvato(newApp);
         setSuccesso("Appuntamento prenotato con successo!");
       }
+
       setErrore(null);
       setTimeout(() => {
         onHide();
@@ -257,11 +277,6 @@ const ModaleNuovoAppuntamento = ({
 };
 
 export default ModaleNuovoAppuntamento;
-
-
-
-
-
 
 
 

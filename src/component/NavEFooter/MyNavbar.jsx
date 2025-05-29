@@ -9,7 +9,6 @@ import {
 import { Link, useLocation, useNavigate } from "react-router";
 import { useAuth } from "../access/AuthContext";
 
-
 const MyNavbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -87,11 +86,11 @@ const MyNavbar = () => {
     <Nav className="flex-column align-items-center flex-grow-1">
       <div
         className={`buttonNav rounded-3 p-2 mb-3 cursor-pointer d-flex align-items-center justify-content-center ${
-          isActive(isAdmin ? "/dashboard" : "/dashboard-paziente") ? "bg-primary" : ""
+          isActive("/dashboard") ? "bg-primary" : ""
         }`}
       >
         <Link
-          to={isAdmin ? "/dashboard" : "/dashboard-paziente"}
+          to="/dashboard"
           className="d-flex justify-content-center align-items-center"
         >
           <LayoutTextWindowReverse size={40} color="white" />
