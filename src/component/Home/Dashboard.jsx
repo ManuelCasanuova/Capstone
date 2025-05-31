@@ -7,6 +7,7 @@ import AppuntamentiOggi from "../Appuntamenti/AppuntamentiOggi";
 import GestioneStudio from "../studio/GestioneStudio";
 import { useAuth } from "../access/AuthContext";
 import Comunicazioni from "../comunicazioni/Comunicazioni";
+import Notifiche from "../comunicazioni/Notifiche";
 
 const Dashboard = () => {
   const { user, token, loading, logout } = useAuth();
@@ -16,18 +17,16 @@ const Dashboard = () => {
     if (!token) {
       logout();
       navigate("/login");
+    } else if (!user) {
+      navigate("/login");
     }
-  }, [token, logout, navigate]);
+  }, [token, user, logout, navigate]);
 
   if (loading) return <p>Caricamento in corso...</p>;
-  if (!user) {
-    navigate("/login");
-    return null;
-  }
+  if (!user) return null;
 
   return (
     <Container className="position-relative">
-      
       <Image
         src={cuore}
         alt="Cuore"
@@ -40,13 +39,13 @@ const Dashboard = () => {
         }}
       />
 
-      <Row className="align-items-center my-4">
+      <Row className="align-items-center">
         <Col xs={12} md={8}>
           <h2>Dashboard</h2>
-          <p>Benvenuto {user.cognome} {user.nome}</p>
+          <p className="mb-4">Benvenuto {user.cognome} {user.nome}</p>
+          <Notifiche />
         </Col>
 
-        
         <Col xs={12} md={4} className="text-md-end text-center mt-3 mt-md-0">
           <Image
             src={logo}
@@ -59,13 +58,11 @@ const Dashboard = () => {
       </Row>
 
       <Row className="gy-4" xs={1} md={2}>
-       
         <Col xs={{ order: 1 }} md={{ order: 2 }}>
           <AppuntamentiOggi />
           <Comunicazioni />
         </Col>
 
-   
         <Col xs={{ order: 2 }} md={{ order: 1 }}>
           <GestioneStudio />
         </Col>
@@ -75,5 +72,6 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
 
 

@@ -18,11 +18,7 @@ const ModaleVisualizzaEsame = ({ show, pdfUrl, onClose }) => {
           />
         )}
       </Modal.Body>
-      <Modal.Footer>
-        <Button variant="secondary" onClick={onClose}>
-          Chiudi
-        </Button>
-      </Modal.Footer>
+      
     </Modal>
   );
 };

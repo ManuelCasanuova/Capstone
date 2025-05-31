@@ -111,23 +111,23 @@ const PaginaProfilo = () => {
               <SideBar pazienteId={datiDaMostrare.id} />
 
              
-              <div className="d-flex justify-content-center mt-4">
-                <div
-                  onClick={() => setShowModaleLogout(true)}
-                  style={{
-                    cursor: "pointer",
-                    backgroundColor: "#E3F2FD",
-                    width: "50px",
-                    height: "50px",
-                    borderRadius: "50%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <Power size={24} color="#074662" />
-                </div>
-              </div>
+            <div className="d-flex justify-content-center mt-4 d-block d-md-none">
+  <div
+    onClick={() => setShowModaleLogout(true)}
+    style={{
+      cursor: "pointer",
+      backgroundColor: "#E3F2FD",
+      width: "50px",
+      height: "50px",
+      borderRadius: "50%",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+    }}
+  >
+    <Power size={24} color="#074662" />
+  </div>
+</div>
             </>
           )}
         </Col>

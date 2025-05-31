@@ -31,37 +31,6 @@ h1, h2, h3, h4, h5, h6, p {
   display: flex;
   justify-content: center; 
   align-items: center;      
-       
-}
-
-@media (max-width: 768px) {
-  .login-background {
-    background-image: url("./assets/SfondoCareFlow.png");
-  }
-
-  .logo-top-left {
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    top: 50px !important;
-  }
-
-  .logo-top-left img {
-    width: 100px !important;
-  }
-
-  body {
-    padding-bottom: 80px; 
-  }
-}
-
-.login-box {
-  background-color: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(3px);
-  border-radius: 1rem;
-  padding: 3rem;
-  width: 100%;
-  max-width: 450px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .logo-top-left {
@@ -101,6 +70,15 @@ h1, h2, h3, h4, h5, h6, p {
   color: white;
 }
 
+.login-box {
+  background-color: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(3px);
+  border-radius: 1rem;
+  padding: 3rem;
+  width: 100%;
+  max-width: 450px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
 
 .navbar {
   background-color: #074662 !important;
@@ -108,13 +86,11 @@ h1, h2, h3, h4, h5, h6, p {
 
 .buttonNav {
   background-color: #074662;
-  
 }
 
 .buttonNav:hover {
   background-color: #2EB0A0;
   color: white !important;
-  
 }
 
 .buttonNav.bg-primary {
@@ -122,27 +98,8 @@ h1, h2, h3, h4, h5, h6, p {
   color: white !important;
 }
 
-
-
-
-.imgStudio{
+.imgStudio {
   max-height: 58px;
-}
-
-.cardBox{
-  background-color: white;
-  box-sizing: content-box;
-}
-
-
-
-
-/*IMMAGINE DI PROFILO*/
-
-.userImg {
-  position: absolute;
-  top: 90px;
-  left: 30px;
 }
 
 .cardBox {
@@ -150,11 +107,15 @@ h1, h2, h3, h4, h5, h6, p {
   box-sizing: content-box;
 }
 
-
 .imgTeam {
   max-height: 201px;
 }
 
+.userImg {
+  position: absolute;
+  top: 90px;
+  left: 30px;
+}
 
 .colorDiv {
   background-color: white;
@@ -163,17 +124,12 @@ h1, h2, h3, h4, h5, h6, p {
 .colorDiv:hover {
   background-color: #2EB0A0;
   color: white !important;
-  
 }
-
-
-/*CALENDARIO*/
 
 .react-calendar__tile {
   position: relative;
 }
 
-/* Aumenta dimensione del calendario */
 .react-calendar {
   width: 700px !important; 
   font-size: 1.2rem;
@@ -183,7 +139,6 @@ h1, h2, h3, h4, h5, h6, p {
   margin: auto;
 }
 
-/* Celle delle date */
 .react-calendar__tile {
   height: 80px;
   padding: 15px 10px !important;
@@ -192,20 +147,17 @@ h1, h2, h3, h4, h5, h6, p {
   transition: background-color 0.3s ease;
 }
 
-/* Hover sulle date */
 .react-calendar__tile:hover {
-  background-color: #2eb0a0 !important; /* verde */
+  background-color: #2eb0a0 !important;
   color: white !important;
 }
 
-/* Data selezionata */
 .react-calendar__tile--active {
   background: #053961 !important; 
   color: white !important;
   border-radius: 8px !important;
 }
 
-/* Evidenziare date con appuntamenti */
 .react-calendar__tile .badge {
   position: absolute;
   top: 7px;
@@ -217,7 +169,6 @@ h1, h2, h3, h4, h5, h6, p {
   padding: 0;
 }
 
-/* Titoli mese e giorni */
 .react-calendar__navigation button {
   color: #053961;
   font-weight: 700;
@@ -226,12 +177,9 @@ h1, h2, h3, h4, h5, h6, p {
   border: none;
 }
 
-/*Tabella ESAMI Paziente*/
-
 .riga-esame {
   color: #053961 !important;
   background-color: white !important;
-  
 }
 
 .riga-esame:hover {
@@ -239,4 +187,33 @@ h1, h2, h3, h4, h5, h6, p {
   color: white !important;
 }
 
+@media (max-width: 768px) {
+  .login-background {
+    background-image: url("./assets/SfondoCareFlow.png");
+  }
 
+  
+
+  .logo-top-left {
+    position: static !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    top: 50px !important;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+
+  .logo-top-left img {
+    width: 100px !important;
+  }
+
+  .slogan-box {
+    display: none !important;
+  }
+
+  .login-box {
+    margin-top: 2rem;
+    padding: 2rem;
+  }
+}

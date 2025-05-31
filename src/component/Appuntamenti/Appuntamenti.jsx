@@ -8,6 +8,12 @@ import ModaleConferma from "../modali/ModaleConferma";
 import { useNavigate, useLocation } from "react-router";
 import { useAuth } from "../access/AuthContext";
 
+// Funzione spostata fuori dal useEffect per poterla usare in JSX
+const isWeekend = (date) => {
+  const day = date.getDay();
+  return day === 0 || day === 6; // domenica o sabato
+};
+
 const Appuntamenti = () => {
   const { user, token } = useAuth();
   const navigate = useNavigate();
@@ -336,7 +342,7 @@ const Appuntamenti = () => {
             </Alert>
           )}
 
-          {!haPrenotazioneInData && (
+          {!haPrenotazioneInData && !isWeekend(dataSelezionata) && (
             <Button variant="primary" className="mt-3" onClick={handleApriNuovoAppuntamento}>
               Nuova prenotazione
             </Button>
@@ -383,3 +389,4 @@ const Appuntamenti = () => {
 };
 
 export default Appuntamenti;
+

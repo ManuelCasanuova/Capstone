@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
+import { useAuth } from "../access/AuthContext"; 
 
 const ModaleUploadEsame = ({ show, onHide, pazienteId, onUploadSuccess }) => {
   const [file, setFile] = useState(null);
   const [note, setNote] = useState("");
   const [dataEsame, setDataEsame] = useState("");
+  const { token } = useAuth();
   const apiUrl = import.meta.env.VITE_API_URL;
 
   const handleUpload = async (e) => {
@@ -23,6 +25,9 @@ const ModaleUploadEsame = ({ show, onHide, pazienteId, onUploadSuccess }) => {
     try {
       const res = await fetch(`${apiUrl}/esami/upload`, {
         method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`, 
+        },
         body: formData,
       });
 
@@ -48,9 +53,6 @@ const ModaleUploadEsame = ({ show, onHide, pazienteId, onUploadSuccess }) => {
       </Modal.Header>
       <Modal.Body>
         <Form onSubmit={handleUpload}>
-
-
-
           <Form.Group className="mb-3">
             <Form.Label>Data Esame</Form.Label>
             <Form.Control
@@ -61,13 +63,13 @@ const ModaleUploadEsame = ({ show, onHide, pazienteId, onUploadSuccess }) => {
             />
           </Form.Group>
 
-
           <Form.Group className="mb-3">
             <Form.Label>Seleziona PDF</Form.Label>
             <Form.Control
               type="file"
               accept="application/pdf"
               onChange={(e) => setFile(e.target.files[0])}
+              required
             />
           </Form.Group>
 
@@ -80,8 +82,6 @@ const ModaleUploadEsame = ({ show, onHide, pazienteId, onUploadSuccess }) => {
             />
           </Form.Group>
 
-        
-
           <Button type="submit" variant="primary">
             Carica Esame
           </Button>
@@ -92,3 +92,4 @@ const ModaleUploadEsame = ({ show, onHide, pazienteId, onUploadSuccess }) => {
 };
 
 export default ModaleUploadEsame;
+

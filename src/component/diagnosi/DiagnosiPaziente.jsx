@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router";
-import { Container, ListGroup, Spinner, Button } from "react-bootstrap";
+import { Container, ListGroup, Spinner, Button, Image } from "react-bootstrap";
 import ModaleNuovaDiagnosi from "../modali/ModaleNuovaDiagnosi";
 import DettaglioDiagnosi from "./DettaglioDiagnosi";
 
@@ -56,24 +56,40 @@ function DiagnosiPaziente() {
   return (
     <Container className="mt-3">
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <h4>Diagnosi del paziente</h4>
-        <Button onClick={() => setShowModal(true)}>Nuova Diagnosi</Button>
+        <h4>Diagnosi</h4>
+        <Button variant="success" onClick={() => setShowModal(true)}>
+          Nuova Diagnosi
+        </Button>
       </div>
 
-      {diagnosi.length === 0 && <p>Nessuna diagnosi trovata.</p>}
-
-      <ListGroup>
-        {diagnosi.map((d) => (
-          <ListGroup.Item
-            key={d.id}
-            action
-            onClick={() => setSelectedDiagnosi(d)}
-            style={{ cursor: "pointer" }}
-          >
-            {new Date(d.dataDiagnosi).toLocaleDateString("it-IT")} – {d.codiceCIM10}
-          </ListGroup.Item>
-        ))}
-      </ListGroup>
+      {diagnosi.length === 0 ? (
+        <Container
+          className="text-center d-flex flex-column align-items-center justify-content-center"
+          style={{ minHeight: "40vh", marginBottom: 30 }}
+        >
+          <h4 className="my-3">Nessuna diagnosi trovata.</h4>
+          <Image
+            src="https://cdn-icons-png.flaticon.com/512/4076/4076549.png"
+            alt="Risorsa non trovata"
+            style={{ width: 200, opacity: 0.6 }}
+            rounded
+          />
+          
+        </Container>
+      ) : (
+        <ListGroup>
+          {diagnosi.map((d) => (
+            <ListGroup.Item
+              key={d.id}
+              action
+              onClick={() => setSelectedDiagnosi(d)}
+              style={{ cursor: "pointer" }}
+            >
+              {new Date(d.dataDiagnosi).toLocaleDateString("it-IT")} – {d.codiceCIM10}
+            </ListGroup.Item>
+          ))}
+        </ListGroup>
+      )}
 
       <ModaleNuovaDiagnosi
         show={showModal}
@@ -97,4 +113,6 @@ function DiagnosiPaziente() {
 }
 
 export default DiagnosiPaziente;
+
+
 
