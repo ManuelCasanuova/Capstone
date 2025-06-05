@@ -277,7 +277,7 @@ const Appuntamenti = () => {
         </Col>
 
         <Col md={6}>
-          <h4 className="mb-3">Appuntamenti per il {dataSelezionata.toLocaleDateString()}</h4>
+          <h4 className="mb-3">Appuntamenti del {dataSelezionata.toLocaleDateString()}</h4>
 
           {appuntamentiGiorno.length > 0 && (
             <ListGroup>
