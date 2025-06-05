@@ -148,7 +148,8 @@ const GestioneStudio = () => {
       <Card className="mb-3 p-3 shadow-sm">
         <h4 className="mb-4">Orari di apertura studio</h4>
         <h5>{studio.nome}</h5>
-        <p><strong>Indirizzo:</strong> {studio.indirizzo}</p>
+        <p ><strong>Indirizzo:</strong> {studio.indirizzo}</p>
+        <p className="mb-2"><strong>Telefono:</strong> {studio.telefonoStudio}</p>
 
         {giorni
           .filter(g => g.giorno !== "SATURDAY" && g.giorno !== "SUNDAY")

@@ -3,11 +3,11 @@ import { useNavigate } from "react-router";
 import { useEffect } from "react";
 import logo from "../../assets/Logo.png";
 import cuore from "../../assets/cuore.png";
-import AppuntamentiOggi from "../Appuntamenti/AppuntamentiOggi";
 import GestioneStudio from "../studio/GestioneStudio";
 import { useAuth } from "../access/AuthContext";
 import Comunicazioni from "../comunicazioni/Comunicazioni";
 import Notifiche from "../comunicazioni/Notifiche";
+import AppuntamentiOggi from "../Appuntamenti/AppuntamentiOggi";
 
 const Dashboard = () => {
   const { user, token, loading, logout } = useAuth();
@@ -39,14 +39,14 @@ const Dashboard = () => {
         }}
       />
 
-      <Row className="align-items-center">
-        <Col xs={12} md={8}>
+      <Row className="align-items-center justify-content-between mb-4">
+        <Col xs="auto">
           <h2>Dashboard</h2>
-          <p className="mb-4">Benvenuto {user.cognome} {user.nome}</p>
+          <p className="mb-3">Benvenuto {user.cognome} {user.nome}</p>
           <Notifiche />
         </Col>
 
-        <Col xs={12} md={4} className="text-md-end text-center mt-3 mt-md-0">
+        <Col xs="auto" className="text-end">
           <Image
             src={logo}
             alt="Logo"
@@ -72,6 +72,7 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
 
 
 

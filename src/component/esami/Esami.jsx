@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Alert, Button, Table } from "react-bootstrap";
+import { Alert, Button, Table, Image } from "react-bootstrap";
 import { useParams } from "react-router";
 import ModaleVisualizzaEsame from "../modali/ModaleVisualizzaEsame";
 import ModaleUploadEsame from "../modali/ModaleUploadEsame";
@@ -34,7 +34,6 @@ const Esami = () => {
 
           const data = await res.json();
 
-      
           data.sort((a, b) => new Date(b.dataCaricamento) - new Date(a.dataCaricamento));
 
           setEsami(data);
@@ -92,14 +91,12 @@ const Esami = () => {
   return (
     <div className="container mt-4">
       <div className="d-flex justify-content-between align-items-center">
-         <h2>Esami</h2>
+        <h2>Esami</h2>
 
-      <Button variant="success" className="mb-3" onClick={() => setShowModalUpload(true)}>
-        Carica Nuovo Esame
-      </Button>
-
+        <Button variant="success" className="mb-3" onClick={() => setShowModalUpload(true)}>
+          Carica Nuovo Esame
+        </Button>
       </div>
-     
 
       {showSuccessAlert && (
         <Alert variant="success" dismissible>
@@ -110,7 +107,15 @@ const Esami = () => {
       {error && <Alert variant="danger">{error}</Alert>}
 
       {esami.length === 0 && !error ? (
-        <p className="text-muted">Nessun esame disponibile per questo paziente.</p>
+        <div className="text-center d-flex flex-column align-items-center justify-content-center" style={{ minHeight: "40vh", marginBottom: 30 }}>
+          <h4 className="my-3">Nessun esame disponibile per questo paziente.</h4>
+          <Image
+            src="https://cdn-icons-png.flaticon.com/512/4076/4076549.png"
+            alt="Nessun esame"
+            style={{ width: 200, opacity: 0.6 }}
+            rounded
+          />
+        </div>
       ) : (
         <Table striped bordered hover>
           <thead>

@@ -13,6 +13,7 @@ function DiagnosiPaziente() {
 
   const apiUrl = import.meta.env.VITE_API_URL;
 
+  
   const fetchDiagnosi = () => {
     if (!pazienteId) return;
 
@@ -30,6 +31,20 @@ function DiagnosiPaziente() {
     fetchDiagnosi();
   }, [pazienteId]);
 
+  
+  const handleUpdateDiagnosi = (updatedDiagnosi) => {
+    setDiagnosi((prev) =>
+      prev.map((d) => (d.id === updatedDiagnosi.id ? updatedDiagnosi : d))
+    );
+    setSelectedDiagnosi(updatedDiagnosi);
+  };
+
+ 
+  const handleDeleteDiagnosi = () => {
+    fetchDiagnosi();
+    setSelectedDiagnosi(null);
+  };
+
   if (loading) {
     return (
       <Container className="mt-3 text-center">
@@ -44,10 +59,8 @@ function DiagnosiPaziente() {
         <DettaglioDiagnosi
           diagnosi={selectedDiagnosi}
           onBack={() => setSelectedDiagnosi(null)}
-          onDeleteSuccess={() => {
-            fetchDiagnosi();
-            setSelectedDiagnosi(null);
-          }}
+          onDeleteSuccess={handleDeleteDiagnosi}
+          onUpdateSuccess={handleUpdateDiagnosi}  
         />
       </Container>
     );
@@ -74,7 +87,6 @@ function DiagnosiPaziente() {
             style={{ width: 200, opacity: 0.6 }}
             rounded
           />
-          
         </Container>
       ) : (
         <ListGroup>
@@ -113,6 +125,7 @@ function DiagnosiPaziente() {
 }
 
 export default DiagnosiPaziente;
+
 
 
 

@@ -4,20 +4,24 @@ import 'bootstrap-icons/font/bootstrap-icons.css'
 import './App.css'
 import { BrowserRouter, Route, Routes, useLocation } from 'react-router'
 
-import MyNavbar from './component/NavBar/MyNavbar'
-import PaginaPazienti from './component/PaginaPazienti/PaginaPazienti'
-import Dashboard from './component/Home/Dashboard'
-import { Container } from 'react-bootstrap'
-import PaginaProfilo from './component/Profilo/PaginaProfilo'
+
+import Dashboard from './component/home/Dashboard'
+
+import PaginaProfilo from './component/profilo/PaginaProfilo'
 import MyLogin from './component/access/MyLogin'
 import AccessPage from './component/access/AccessPage'
-import Appuntamenti from './component/Appuntamenti/Appuntamenti'
+
 import CambioPassword from './component/access/CambioPassword'
-import AppuntamentiPaziente from './component/Appuntamenti/AppuntamentiPaziente'
+import AppuntamentiPaziente from './component/appuntamenti/AppuntamentiPaziente'
 import DiagnosiPaziente from './component/diagnosi/DiagnosiPaziente'
 import Esami from './component/esami/Esami'
 import CatchAll from './component/catchAll/CatchAll'
-import MobileNav from './component/NavBar/MobileNav'
+import MobileNav from './component/navBar/MobileNav'
+import MyNavbar from './component/NavBar/MyNavbar'
+import PaginaPazienti from './component/PaginaPazienti/PaginaPazienti'
+import PaginaPianoTerapeutico from './component/pianoTerapeutico/PaginaPianoTerapeutico'
+import AnamnesiPage from './component/anamnesi/AnamnesiPage'
+import Appuntamenti from './component/Appuntamenti/Appuntamenti'
 
 
 function AppWrapper() {
@@ -47,10 +51,12 @@ function AppWrapper() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path='/pazienti' element={<PaginaPazienti />} />
         <Route path="/appuntamenti/:id" element={<AppuntamentiPaziente />} />
-        <Route path='/paginaProfilo/:id' element={<Container className='pt-3'><PaginaProfilo /></Container>} />
+        <Route path='/paginaProfilo/:id' element={<PaginaProfilo />} />
         <Route path='/appuntamenti' element={<Appuntamenti />} />
+        <Route path='/anamnesi/:pazienteId' element={<AnamnesiPage />} />
         <Route path="/esami/:pazienteId" element={<Esami />} />
         <Route path="/diagnosi/:pazienteId" element={<DiagnosiPaziente />} />
+        <Route path= "/piano-terapeutico/:pazienteId" element={<PaginaPianoTerapeutico/>} />
         <Route path='*' element={<CatchAll />} />
       </Routes>
     </>

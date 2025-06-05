@@ -82,7 +82,7 @@ function ModaleNuovaDiagnosi({ show, onHide, pazienteId, onCreated }) {
 
         <Form onSubmit={handleSubmit}>
           <Form.Group className="mb-3" controlId="codiceCIM10">
-            <Form.Label>Codice CIM10</Form.Label>
+            <Form.Label>Codice CIM10/Nome Diagnosi</Form.Label>
             <Form.Control
               type="text"
               value={codiceCIM10}

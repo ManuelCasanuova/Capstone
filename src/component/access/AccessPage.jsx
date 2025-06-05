@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
 import MyLogin from "./MyLogin";
-import Dashboard from "../Home/Dashboard";
+import Dashboard from "../home/Dashboard";
 import { useAuth } from "./AuthContext";
 
 const AccessPage = () => {

@@ -35,7 +35,7 @@ const AppuntamentiPaziente = () => {
         setPazienteInfo({ nome: data.nome, cognome: data.cognome });
       })
       .catch(() => setPazienteInfo({ nome: "", cognome: "" }));
-  }, [id]);
+  }, [id, apiUrl]);
 
   const formatDateTime = (isoString) => {
     const date = new Date(isoString);
@@ -56,7 +56,7 @@ const AppuntamentiPaziente = () => {
 
   return (
     <Container className="mt-4">
-      <div className="d-flex justify-content-between">
+      <div className="d-flex justify-content-between align-items-center">
         <h3>Appuntamenti del Paziente</h3>
         <Button
           variant="success"
@@ -85,7 +85,6 @@ const AppuntamentiPaziente = () => {
             style={{ width: 150, marginBottom: 30, opacity: 0.6 }}
             rounded
           />
-          
         </div>
       ) : (
         <ListGroup>
@@ -102,6 +101,7 @@ const AppuntamentiPaziente = () => {
 };
 
 export default AppuntamentiPaziente;
+
 
 
 

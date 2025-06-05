@@ -10,7 +10,7 @@ const ModaleNotifiche = ({ show, onClose, notifiche, setNotifiche }) => {
   const handleClickNotifica = async (notif) => {
     if (!user) return;
 
-    // Chiamata API per segnare la notifica come letta
+    
     try {
       await fetch(`${import.meta.env.VITE_API_URL}/notifiche/${notif.id}/letta`, {
         method: "POST",
@@ -19,7 +19,7 @@ const ModaleNotifiche = ({ show, onClose, notifiche, setNotifiche }) => {
         },
       });
 
-      // Aggiorna lista notifiche in locale togliendo la notifica letta
+   
       setNotifiche((prev) => prev.map(n => n.id === notif.id ? {...n, letta: true} : n));
 
     } catch (error) {
@@ -28,7 +28,7 @@ const ModaleNotifiche = ({ show, onClose, notifiche, setNotifiche }) => {
 
     onClose();
 
-    // Navigazione in base al ruolo
+  
     if (user.roles.includes("ROLE_PAZIENTE")) {
       navigate(`/paginaProfilo/${user.id}`);
     } else if (

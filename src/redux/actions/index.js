@@ -2,7 +2,6 @@ const SET_USER = "SET_USER";
 const LOGIN_SUCCESS = "LOGIN_SUCCESS";
 const LOGIN_FAILURE = "LOGIN_FAILURE";
 const LOGOUT = "LOGOUT";
-const SET_NEWS = "SET_NEWS";
 const SET_UTENTI = "SET_UTENTI";
 const AGGIUNGI_PAZIENTE = "AGGIUNGI_PAZIENTE";
 const AGGIORNA_PAZIENTE = "AGGIORNA_PAZIENTE";
@@ -18,7 +17,6 @@ export{
   LOGIN_SUCCESS,
   LOGIN_FAILURE,
   LOGOUT,
-  SET_NEWS,
   AGGIUNGI_PAZIENTE,
   AGGIORNA_PAZIENTE,
   SET_APPUNTAMENTI,
@@ -31,21 +29,7 @@ export{
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
-export const fetchNews = () => {
-    return (dispatch) => {
-      fetch("http://api.mediastack.com/v1/news?access_key=dd9e12986a01ec71a4448b94a76cf048&sources=it")
-        .then((resp) => resp.json())
-        .then((news) => {
-          if (news) {
-            console.log("SONO NEWS", news);
-            dispatch({ type: SET_NEWS, payload: news });
-          } else {
-            alert("Nessuna notizia trovata");
-          }
-        })
-        .catch((err) => console.error(err));
-    };
-  };
+
 
 
   export const fetchLogin = (username, password, navigate) => {

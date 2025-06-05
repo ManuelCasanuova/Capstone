@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../access/AuthContext";
 import Profilo from "./Profilo";
 import SideBar from "./SideBar";
+
 import ModaleConferma from "../modali/ModaleConferma";
 import { Container, Row, Col, Spinner, Image } from "react-bootstrap";
 import { Power } from "react-bootstrap-icons";
@@ -64,7 +65,6 @@ const PaginaProfilo = () => {
 
   return (
     <Container className="position-relative">
-    
       <Image
         src={cuore}
         alt="Cuore"
@@ -77,7 +77,6 @@ const PaginaProfilo = () => {
         }}
       />
 
-   
       <Row className="align-items-center my-4">
         <Col xs={12} md={8}>
           <h2>Profilo</h2>
@@ -93,7 +92,6 @@ const PaginaProfilo = () => {
         </Col>
       </Row>
 
-      
       <Row>
         <Col xs={12} md={7} className="d-flex justify-content-center mb-4 mb-md-0">
           {loading ? (
@@ -109,31 +107,39 @@ const PaginaProfilo = () => {
           {shouldShowSidebar && datiDaMostrare?.id && (
             <>
               <SideBar pazienteId={datiDaMostrare.id} />
-
-             
-            <div className="d-flex justify-content-center mt-4 d-block d-md-none">
-  <div
-    onClick={() => setShowModaleLogout(true)}
-    style={{
-      cursor: "pointer",
-      backgroundColor: "#E3F2FD",
-      width: "50px",
-      height: "50px",
-      borderRadius: "50%",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-    }}
-  >
-    <Power size={24} color="#074662" />
-  </div>
-</div>
             </>
           )}
         </Col>
       </Row>
 
      
+      <div
+        className="d-md-none position-fixed"
+        style={{
+          bottom: "100px",
+          right: "10px",
+          backgroundColor: "#E3F2FD",
+          borderRadius: "50%",
+          width: "50px",
+          height: "50px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          cursor: "pointer",
+          boxShadow: "0 0 8px rgba(0,0,0,0.15)",
+          zIndex: 1050,
+        }}
+        onClick={() => setShowModaleLogout(true)}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") setShowModaleLogout(true);
+        }}
+        aria-label="Logout"
+      >
+        <Power size={24} color="#074662" />
+      </div>
+
       <ModaleConferma
         show={showModaleLogout}
         onConferma={handleLogout}
@@ -145,6 +151,7 @@ const PaginaProfilo = () => {
 };
 
 export default PaginaProfilo;
+
 
 
 

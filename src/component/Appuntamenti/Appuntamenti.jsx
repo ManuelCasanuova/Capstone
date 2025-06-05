@@ -8,10 +8,10 @@ import ModaleConferma from "../modali/ModaleConferma";
 import { useNavigate, useLocation } from "react-router";
 import { useAuth } from "../access/AuthContext";
 
-// Funzione spostata fuori dal useEffect per poterla usare in JSX
+
 const isWeekend = (date) => {
   const day = date.getDay();
-  return day === 0 || day === 6; // domenica o sabato
+  return day === 0 || day === 6; 
 };
 
 const Appuntamenti = () => {
@@ -229,7 +229,7 @@ const Appuntamenti = () => {
   };
 
   return (
-    <Container className="mt-4">
+    <Container>
       <div className="d-flex align-items-center mb-4">
         <h2 className="me-auto">Appuntamenti</h2>
         <img src={logo} alt="Logo" style={{ width: "150px" }} />
@@ -245,7 +245,7 @@ const Appuntamenti = () => {
               if (view !== "month") return false;
 
               const day = date.getDay();
-              if (day === 0 || day === 6) return true; // disabilita sab e dom
+              if (day === 0 || day === 6) return true; 
 
               const giornoSett = date
                 .toLocaleDateString("en-US", { weekday: "long" })

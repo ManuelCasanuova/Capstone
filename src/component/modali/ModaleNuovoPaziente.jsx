@@ -18,6 +18,8 @@ const ModaleNuovoPaziente = ({ show, onHide, onSubmit }) => {
     esenzione: ""
   });
 
+  const password = import.meta.env.PASSWORD
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -28,7 +30,7 @@ const ModaleNuovoPaziente = ({ show, onHide, onSubmit }) => {
 
     const payload = {
       pazienteRequest: formData,
-      password: "Password123!" // password predefinita non visibile nel form
+      password: password,
     };
 
     onSubmit(payload);

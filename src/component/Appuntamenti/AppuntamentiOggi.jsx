@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAppuntamenti } from "../../redux/actions";
 import { ListGroup, Badge, Container } from "react-bootstrap";
+import { useAuth } from "../access/AuthContext";  
 
 const AppuntamentiOggi = () => {
   const dispatch = useDispatch();
   const token = localStorage.getItem("token");
   const appuntamentiRedux = useSelector((state) => state.appuntamenti.appuntamenti || []);
+  const { user } = useAuth();
 
   const [appuntamentiOggi, setAppuntamentiOggi] = useState([]);
 
@@ -17,19 +19,28 @@ const AppuntamentiOggi = () => {
   }, [dispatch, token]);
 
   useEffect(() => {
+    if (!user) return;
+
     const oggi = new Date();
     const oggiStr = oggi.toDateString();
 
-    const filtrati = appuntamentiRedux.filter(
+    let filtrati = appuntamentiRedux.filter(
       (app) => new Date(app.dataOraAppuntamento).toDateString() === oggiStr
     );
+
+   
+    if (user.roles.includes("ROLE_PAZIENTE")) {
+      filtrati = filtrati.filter(app => app.pazienteId === user.pazienteId);
+    }
+
+  
 
     const ordinati = filtrati.sort(
       (a, b) => new Date(a.dataOraAppuntamento) - new Date(b.dataOraAppuntamento)
     );
 
     setAppuntamentiOggi(ordinati);
-  }, [appuntamentiRedux]);
+  }, [appuntamentiRedux, user]);
 
   return (
     <Container className="border rounded-3 shadow-sm p-4" >

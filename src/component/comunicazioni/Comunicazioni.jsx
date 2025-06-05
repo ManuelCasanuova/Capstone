@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../access/AuthContext";
-import ModaleConferma from "../modali/ModaleConferma";
 import { Trash, Pencil } from "react-bootstrap-icons";
 import ModaleComunicazione from "../modali/ModaleComunicazione";
+import ModaleConferma from "../modali/ModaleConferma"; 
 
 function Comunicazioni() {
   const { user, token } = useAuth();
@@ -110,7 +110,7 @@ function Comunicazioni() {
                 {user?.roles?.includes("ROLE_ADMIN") && (
                   <div className="mt-2 mt-md-0 d-flex gap-2 align-items-center">
                     <button
-                      className="btn btn-sm btn-outline-secondary d-flex align-items-center justify-content-center"
+                      className="btn btn-sm btn-outline-warning d-flex align-items-center justify-content-center"
                       onClick={() => apriModale(c)}
                       title="Modifica"
                       style={{ width: "38px", height: "38px" }}
@@ -160,6 +160,7 @@ function Comunicazioni() {
 }
 
 export default Comunicazioni;
+
 
 
 

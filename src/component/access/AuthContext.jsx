@@ -9,46 +9,34 @@ export const AuthProvider = ({ children }) => {
   const apiUrl = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
-   
-  const fetchUtente = async () => {
-    if (!token) {
-      setUtente(null);
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const res = await fetch(`${apiUrl}/utente/me`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (!res.ok) {
-        const errorText = await res.text();
-        throw new Error(`Errore nel recupero dell'utente: ${res.status} - ${errorText}`);
-        
+    const fetchUtente = async () => {
+      if (!token) {
+        setUtente(null);
+        setLoading(false);
+        return;
       }
-
-      const data = await res.json();
-      console.log("DEBUG user fetched:", data);
-      setUtente(data);
-    } catch (error) {
-      console.error("Errore:", error);
-      setUtente(null);
-      setToken(null);
-      localStorage.removeItem("token");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  fetchUtente();
-}, [token, apiUrl]);
-
+      try {
+        const res = await fetch(`${apiUrl}/utente/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) throw new Error("Errore nel recupero dell'utente");
+        const data = await res.json();
+        setUtente(data);
+      } catch {
+        setUtente(null);
+        setToken(null);
+        localStorage.removeItem("token");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUtente();
+  }, [token, apiUrl]);
 
   const login = (newToken) => {
     localStorage.setItem("token", newToken);
     setToken(newToken);
-    setLoading(true); 
+    setLoading(true);
   };
 
   const logout = () => {
@@ -57,14 +45,22 @@ export const AuthProvider = ({ children }) => {
     setUtente(null);
   };
 
+
+  const aggiornaAvatarUtente = (nuovoAvatar) => {
+    setUtente((prev) => (prev ? { ...prev, avatar: nuovoAvatar } : prev));
+  };
+
   return (
-    <AuthContext.Provider value={{ user: utente, token, loading, login, logout }}>
+    <AuthContext.Provider
+      value={{ user: utente, token, loading, login, logout, aggiornaAvatarUtente }}
+    >
       {children}
     </AuthContext.Provider>
   );
 };
 
 export const useAuth = () => useContext(AuthContext);
+
 
 
 

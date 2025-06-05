@@ -1,80 +1,95 @@
-import { useState, useRef } from "react";
-import { Button, Card, Image, Alert, Spinner } from "react-bootstrap";
-import { Pencil, Person } from "react-bootstrap-icons";
+import { useEffect, useState, useRef } from "react";
+import { Button, Card, Image, Alert, Spinner, Row, Col } from "react-bootstrap";
+import { Pencil, Person, CheckCircle } from "react-bootstrap-icons";
 import { useAuth } from "../access/AuthContext";
 import ModaleModificaPaziente from "../modali/ModaleModificaPaziente";
 
 const Profilo = ({ utente }) => {
-  const { user } = useAuth();
+  const { user, aggiornaAvatarUtente, aggiornaUtente } = useAuth();
 
-  const datiUtente = utente || user;
+
+  const [datiUtente, setDatiUtente] = useState(utente);
+
+
+  useEffect(() => {
+    setDatiUtente(utente || user);
+  }, [utente, user]);
+
   const isMedico = user?.roles?.includes("ROLE_ADMIN");
   const isPaziente = user?.roles?.includes("ROLE_PAZIENTE");
 
-  const canModifyProfile = isMedico || (datiUtente?.id === user?.id);
+  const canModifyProfile = isMedico || datiUtente?.id === user?.id;
   const canModifyAvatar = datiUtente?.id === user?.id;
 
   const [alert, setAlert] = useState({ show: false, variant: "", message: "" });
   const [loading, setLoading] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState(datiUtente?.avatar || "");
   const [showModale, setShowModale] = useState(false);
+  const [showCheck, setShowCheck] = useState(false);
 
   const fileInputRef = useRef(null);
   const apiUrl = import.meta.env.VITE_API_URL;
 
- const handleFileChange = async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-
-  setLoading(true);
-  setAlert({ show: false, variant: "", message: "" });
-
-  try {
-    const token = localStorage.getItem("token");
-    const formData = new FormData();
-    formData.append("file", file);
-
-    const response = await fetch(`${apiUrl}/utente/${datiUtente.id}/avatar`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: formData,
-    });
-
-    if (!response.ok) {
-      throw new Error(`Errore caricamento avatar: ${response.statusText}`);
+  useEffect(() => {
+    let timer;
+    if (showCheck) {
+      timer = setTimeout(() => setShowCheck(false), 2000);
     }
+    return () => clearTimeout(timer);
+  }, [showCheck]);
 
-    const clone = response.clone();
-    let updatedUtente;
+  
+  useEffect(() => {
+    setAvatarUrl(datiUtente?.avatar || "");
+  }, [datiUtente?.avatar]);
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setLoading(true);
+    setAlert({ show: false, variant: "", message: "" });
+    setShowCheck(false);
+
     try {
-      updatedUtente = await response.json();
-    } catch {
-      const text = await clone.text();
-      updatedUtente = { avatar: text };
+      const token = localStorage.getItem("token");
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch(`${apiUrl}/utente/avatar`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Errore caricamento avatar: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+
+      if (data.avatar) {
+        setAvatarUrl(data.avatar);
+        aggiornaAvatarUtente(data.avatar);
+        setDatiUtente((prev) => ({ ...prev, avatar: data.avatar }));
+        setShowCheck(true);
+      } else {
+        throw new Error("Risposta del server non contiene avatar");
+      }
+    } catch (error) {
+      setAlert({ show: true, variant: "danger", message: error.message });
+    } finally {
+      setLoading(false);
     }
+  };
 
-    if (updatedUtente.avatar) {
-      setAvatarUrl(updatedUtente.avatar);
-      setAlert({ show: true, variant: "success", message: "Avatar aggiornato con successo!" });
-    } else {
-      throw new Error("Risposta del server non contiene avatar");
-    }
-  } catch (error) {
-    setAlert({ show: true, variant: "danger", message: error.message });
-  } finally {
-    setLoading(false);
-  }
-};
-
-
-
-  const handleSave = async (updatedPaziente) => {
-    
+  const handleSave = (datiAggiornati) => {
+    setDatiUtente(datiAggiornati); 
+    aggiornaUtente && aggiornaUtente(datiAggiornati); 
     setShowModale(false);
     setAlert({ show: true, variant: "success", message: "Profilo aggiornato con successo!" });
-    
   };
 
   return (
@@ -88,126 +103,143 @@ const Profilo = ({ utente }) => {
       <Card className="p-4 shadow-sm position-relative">
         <h3 className="d-flex align-items-center justify-content-center mb-4">
           <Person className="me-2" size={26} />
-          {isMedico ? "Profilo Medico / Paziente" : "Informazioni Personali"}
+          {"Informazioni Personali"}
         </h3>
 
         <div
-          className="d-flex flex-column align-items-center text-center mb-4 position-relative"
-          style={{ width: 80, margin: "0 auto" }}
+          className="d-flex align-items-center mb-4 justify-content-center"
+          style={{ maxWidth: 300, margin: "0 auto" }}
         >
-          <Image
-            src={avatarUrl || ""}
-            roundedCircle
-            style={{ width: 80, height: 80, objectFit: "cover" }}
-            className="mb-3"
-          />
-
-          {canModifyAvatar && (
-            <>
-              <div
-                onClick={() => fileInputRef.current?.click()}
-                style={{
-                  position: "absolute",
-                  top: 2,
-                  right: 'calc(50% - 40px)',
-                  backgroundColor: "#074662",
-                  borderRadius: "50%",
-                  width: 24,
-                  height: 24,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  cursor: loading ? "not-allowed" : "pointer",
-                  boxShadow: "0 0 6px rgba(0,0,0,0.3)",
-                  opacity: loading ? 0.6 : 1,
-                }}
-                title="Modifica immagine profilo"
-              >
-                {loading ? (
-                  <Spinner animation="border" size="sm" variant="light" />
-                ) : (
-                  <Pencil color="white" size={16} />
-                )}
-              </div>
-              <input
-                type="file"
-                accept="image/*"
-                ref={fileInputRef}
-                onChange={handleFileChange}
-                style={{ display: "none" }}
-                disabled={loading}
-              />
-            </>
-          )}
-
-          <h4 className="mb-1">
-            {datiUtente?.nome || "-"} {datiUtente?.cognome || ""}
-          </h4>
-          <p className="mb-0">
-            {isMedico
-              ? datiUtente?.email
-              : datiUtente?.dataDiNascita
-              ? new Date(datiUtente?.dataDiNascita).toLocaleDateString("it-IT")
-              : "-"}
-          </p>
-        </div>
-
-        {canModifyProfile && (
-          <div className="text-center mb-3">
-            <Button variant="primary" onClick={() => setShowModale(true)}>
-              Modifica Profilo
-            </Button>
+          <div style={{ position: "relative", width: 80, height: 80 }}>
+            <Image
+              src={avatarUrl || ""}
+              roundedCircle
+              style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            />
+            {canModifyAvatar && (
+              <>
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  style={{
+                    position: "absolute",
+                    top: 5,
+                    right: 5,
+                    backgroundColor: "#074662",
+                    borderRadius: "50%",
+                    width: 24,
+                    height: 24,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: loading ? "not-allowed" : "pointer",
+                    boxShadow: "0 0 6px rgba(0,0,0,0.3)",
+                    opacity: loading ? 0.6 : 1,
+                    zIndex: 10,
+                  }}
+                  title="Modifica immagine profilo"
+                >
+                  {loading ? (
+                    <Spinner animation="border" size="sm" variant="success" />
+                  ) : showCheck ? (
+                    <CheckCircle color="limegreen" size={16} />
+                  ) : (
+                    <Pencil color="white" size={16} />
+                  )}
+                </div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
+                  style={{ display: "none" }}
+                  disabled={loading}
+                />
+              </>
+            )}
           </div>
-        )}
+
+          <div className="text-start flex-grow-1 ms-3">
+            <h4 className="mb-1">
+              {datiUtente?.nome || "-"} {datiUtente?.cognome || ""}
+            </h4>
+            <p className="mb-0">
+              {isMedico
+                ? datiUtente?.email
+                : datiUtente?.dataDiNascita
+                ? new Date(datiUtente?.dataDiNascita).toLocaleDateString("it-IT")
+                : "-"}
+            </p>
+          </div>
+        </div>
 
         <div className="ms-2 mb-4">
           {isMedico && datiUtente?.studio ? (
             <>
-              <p>
-                <strong>Studio:</strong> {datiUtente.studio?.nome || "-"}
+              <p className="mb-1">
+                <strong>Studio:</strong> <br /> {datiUtente.studio?.nome || "-"}
               </p>
-              <p>
-                <strong>Specializzazione:</strong>{" "}
+              <p className="mb-1">
+                <strong>Specializzazione:</strong> <br />
                 {datiUtente.studio?.specializzazioneMedico || "Non specificata"}
               </p>
-              <p>
-                <strong>Indirizzo:</strong> {datiUtente.studio?.indirizzo || "-"}
+              <p className="mb-1">
+                <strong>Indirizzo:</strong> <br /> {datiUtente.studio?.indirizzo || "-"}
               </p>
-              <p>
-                <strong>Telefono fisso:</strong> {datiUtente.telefonoFisso || "-"}
+              <p className="mb-1">
+                <strong>Telefono fisso:</strong> <br /> {datiUtente.telefonoFisso || "-"}
               </p>
-              <p>
-                <strong>Cellulare:</strong> {datiUtente.studio?.telefonoCellulareMedico || "-"}
+              <p className="mb-1">
+                <strong>Cellulare:</strong> <br /> {datiUtente.studio?.telefonoCellulareMedico || "-"}
               </p>
             </>
           ) : (
             <>
-              <p>
-                <strong>Genere:</strong> {datiUtente?.sesso || "-"}
-              </p>
-              <p>
-                <strong>Gruppo Sanguigno:</strong> {datiUtente?.gruppoSanguigno || "-"}
-              </p>
-              <p>
-                <strong>Codice Fiscale:</strong> {datiUtente?.codiceFiscale || "-"}
-              </p>
-              <p>
-                <strong>Telefono:</strong> {datiUtente?.telefonoCellulare || "-"} -{" "}
-                {datiUtente?.telefonoFisso || "-"}
-              </p>
-              <p>
-                <strong>Email:</strong> {datiUtente?.email || "-"}
-              </p>
-              <p>
-                <strong>Indirizzo residenza:</strong> {datiUtente?.indirizzoResidenza || "-"}
-              </p>
-              <p>
-                <strong>Indirizzo domicilio:</strong> {datiUtente?.domicilio || "-"}
-              </p>
-              <p>
-                <strong>Esenzione:</strong> {datiUtente?.esenzione || "-"}
-              </p>
+              <Row>
+                <Col md={6}>
+                  <p className="mb-1 ">
+                    <strong>Data di nascita:</strong> <br />
+                    {new Date(datiUtente?.dataDiNascita).toLocaleDateString("it-IT")}
+                  </p>
+
+                  <p className="mb-1">
+                    <strong>Genere:</strong> <br /> {datiUtente?.sesso || "-"}
+                  </p>
+                  <p className="mb-1">
+                    <strong>Gruppo Sanguigno:</strong> <br /> {datiUtente?.gruppoSanguigno || "-"}
+                  </p>
+                  <p className="mb-1">
+                    <strong>Codice Fiscale:</strong> <br /> {datiUtente?.codiceFiscale || "-"}
+                  </p>
+                  <p className="mb-1">
+                    <strong>Esenzione:</strong> <br /> {datiUtente?.esenzione || "-"}
+                  </p>
+                </Col>
+
+                <Col md={6}>
+                  <p className="mb-1">
+                    <strong>Telefono fisso:</strong> <br /> {datiUtente?.telefonoFisso || "-"}
+                  </p>
+
+                  <p className="mb-1">
+                    <strong>Telefono cellulare:</strong> <br /> {datiUtente?.telefonoCellulare || "-"}
+                  </p>
+
+                  <p className="mb-1">
+                    <strong>Indirizzo residenza:</strong> <br /> {datiUtente?.indirizzoResidenza || "-"}
+                  </p>
+                  <p className="mb-1">
+                    <strong>Indirizzo domicilio:</strong> <br /> {datiUtente?.domicilio || "-"}
+                  </p>
+                </Col>
+              </Row>
             </>
+          )}
+          {canModifyProfile && (
+            <div className="text-center mt-3">
+              <Button variant="primary" onClick={() => setShowModale(true)} className="w-100">
+                Modifica Profilo
+              </Button>
+            </div>
           )}
         </div>
       </Card>
@@ -226,6 +258,16 @@ const Profilo = ({ utente }) => {
 };
 
 export default Profilo;
+
+
+
+
+
+
+
+
+
+
 
 
 
