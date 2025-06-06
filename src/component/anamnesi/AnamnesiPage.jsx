@@ -85,6 +85,7 @@ function AnamnesiPaziente() {
   }
 
   return (
+      
     <Container className="mt-3">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h4>Anamnesi</h4>
@@ -114,17 +115,17 @@ function AnamnesiPaziente() {
         </Container>
       ) : (
         <ListGroup>
+
+        
           {anamnesi.map((a) => (
+
             <ListGroup.Item
               key={a.id}
               action
               onClick={() => setSelectedAnamnesi(a)}
               style={{ cursor: "pointer" }}
             >
-              {a.dataInserimentoAnamnesi
-                ? new Date(a.dataInserimentoAnamnesi).toLocaleDateString("it-IT")
-                : "-"}{" "}
-              – {a.descrizioneAnamnesi || "Descrizione non disponibile"}
+              {a.anno}{" "} – {a.titolo}{" "}
             </ListGroup.Item>
           ))}
         </ListGroup>

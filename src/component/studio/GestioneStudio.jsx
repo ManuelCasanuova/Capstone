@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Button, Col, Form, Row, Spinner, Alert, Card } from "react-bootstrap";
+import { Button, Col, Form, Row, Spinner, Alert, Card, Placeholder } from "react-bootstrap";
 import { useAuth } from "../access/AuthContext";
 
 const GIORNI_SETTIMANA = [
@@ -134,7 +134,49 @@ const GestioneStudio = () => {
     }
   };
 
-  if (loading) return <Spinner animation="border" className="mt-4" />;
+if (loading) {
+  return (
+    <Card className="p-4 shadow-sm border rounded-3">
+      <Placeholder as="h4" animation="glow" className="mb-3">
+        <Placeholder xs={6} />
+      </Placeholder>
+
+      <Placeholder as="h5" animation="glow">
+        <Placeholder xs={4} />
+      </Placeholder>
+
+      <Placeholder as="p" animation="glow">
+        <Placeholder xs={6} /> <Placeholder xs={3} />
+      </Placeholder>
+
+      <Placeholder as="p" animation="glow" className="mb-4">
+        <Placeholder xs={5} /> <Placeholder xs={4} />
+      </Placeholder>
+
+      {[...Array(5)].map((_, i) => (
+        <div key={i} className="mb-3 border rounded p-3 bg-light">
+          <Placeholder animation="glow" className="mb-2">
+            <Placeholder xs={3} />
+          </Placeholder>
+          <Placeholder animation="glow">
+            <Placeholder xs={4} className="me-2" />
+            <Placeholder xs={4} />
+          </Placeholder>
+          <Placeholder animation="glow" className="mt-2">
+            <Placeholder xs={3} className="me-2" />
+            <Placeholder xs={3} />
+          </Placeholder>
+        </div>
+      ))}
+
+      <div className="d-flex justify-content-end">
+        <Placeholder.Button variant="primary" xs={3} />
+      </div>
+    </Card>
+  );
+}
+
+
   if (!studio) return <Alert variant="danger">Studio non trovato</Alert>;
 
   return (
@@ -145,7 +187,7 @@ const GestioneStudio = () => {
         </Alert>
       )}
 
-      <Card className="mb-3 p-3 shadow-sm">
+      <Card className="mb-3 p-3 border rounded-3 shadow-sm">
         <h4 className="mb-4">Orari di apertura studio</h4>
         <h5>{studio.nome}</h5>
         <p ><strong>Indirizzo:</strong> {studio.indirizzo}</p>

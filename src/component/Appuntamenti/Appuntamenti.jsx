@@ -236,7 +236,7 @@ const Appuntamenti = () => {
       </div>
 
       <Row>
-        <Col md={6} className="mb-4">
+        <Col md={6} className="mb-4 ">
           <Calendar
             onChange={setDataSelezionata}
             value={dataSelezionata}
@@ -285,7 +285,7 @@ const Appuntamenti = () => {
                 <ListGroup.Item
                   key={app.id}
                   onClick={() => handleNavigateToProfilo(app.pazienteId)}
-                  className="d-flex justify-content-between align-items-center"
+                  className="d-flex justify-content-between align-items-center shadow-sm"
                   style={{ cursor: "pointer" }}
                 >
                   <div>
@@ -342,11 +342,12 @@ const Appuntamenti = () => {
             </Alert>
           )}
 
-          {!haPrenotazioneInData && !isWeekend(dataSelezionata) && (
-            <Button variant="primary" className="mt-3" onClick={handleApriNuovoAppuntamento}>
-              Nuova prenotazione
-            </Button>
-          )}
+        {!haPrenotazioneInData && !isWeekend(dataSelezionata) && !showAlertChiuso && (
+  <Button variant="primary" className="mt-3" onClick={handleApriNuovoAppuntamento}>
+    Nuova prenotazione
+  </Button>
+)}
+
 
           {showAlertChiuso && (
             <Alert variant="warning" className="mt-5">

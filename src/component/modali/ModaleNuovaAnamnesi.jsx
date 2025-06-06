@@ -5,6 +5,8 @@ import { ChevronDown, ChevronUp } from "react-bootstrap-icons";
 function ModaleNuovaAnamnesi({ show, onHide, pazienteId, onCreated, initialData }) {
   const [form, setForm] = useState({
     descrizioneAnamnesi: "",
+    titolo: "",
+    anno: "",
     fattoreDiRischio: {
       fumatore: false,
       dataInizioFumo: "",
@@ -16,33 +18,29 @@ function ModaleNuovaAnamnesi({ show, onHide, pazienteId, onCreated, initialData 
     },
   });
 
-
   const [showFattori, setShowFattori] = useState(false);
 
   useEffect(() => {
     if (initialData) {
       setForm({
         descrizioneAnamnesi: initialData.descrizioneAnamnesi || "",
+        titolo: initialData.titolo || "",
+        anno: initialData.anno || "",
         fattoreDiRischio: {
           fumatore: initialData.fattoreDiRischio?.fumatore || false,
-          dataInizioFumo: initialData.fattoreDiRischio?.dataInizioFumo
-            ? initialData.fattoreDiRischio.dataInizioFumo.slice(0, 10)
-            : "",
+          dataInizioFumo: initialData.fattoreDiRischio?.dataInizioFumo?.slice(0, 10) || "",
           usoAlcol: initialData.fattoreDiRischio?.usoAlcol || false,
-          dataUltimaAssunzioneAlcol: initialData.fattoreDiRischio?.dataUltimaAssunzioneAlcol
-            ? initialData.fattoreDiRischio.dataUltimaAssunzioneAlcol.slice(0, 10)
-            : "",
+          dataUltimaAssunzioneAlcol: initialData.fattoreDiRischio?.dataUltimaAssunzioneAlcol?.slice(0, 10) || "",
           usoStupefacente: initialData.fattoreDiRischio?.usoStupefacente || false,
-          dataUltimaAssunzioneStupefacente: initialData.fattoreDiRischio?.dataUltimaAssunzioneStupefacente
-            ? initialData.fattoreDiRischio.dataUltimaAssunzioneStupefacente.slice(0, 10)
-            : "",
+          dataUltimaAssunzioneStupefacente: initialData.fattoreDiRischio?.dataUltimaAssunzioneStupefacente?.slice(0, 10) || "",
           note: initialData.fattoreDiRischio?.note || "",
         },
       });
-      setShowFattori(false); 
     } else {
       setForm({
         descrizioneAnamnesi: "",
+        titolo: "",
+        anno: "",
         fattoreDiRischio: {
           fumatore: false,
           dataInizioFumo: "",
@@ -53,8 +51,8 @@ function ModaleNuovaAnamnesi({ show, onHide, pazienteId, onCreated, initialData 
           note: "",
         },
       });
-      setShowFattori(false);
     }
+    setShowFattori(false);
   }, [initialData, show]);
 
   const handleChange = (e) => {
@@ -75,60 +73,82 @@ function ModaleNuovaAnamnesi({ show, onHide, pazienteId, onCreated, initialData 
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     const payload = {
       descrizioneAnamnesi: form.descrizioneAnamnesi,
+      titolo: form.titolo,
+      anno: form.anno ? parseInt(form.anno) : null,
       pazienteId,
       fattoreDiRischio: {
         fumatore: form.fattoreDiRischio.fumatore,
-        dataInizioFumo: form.fattoreDiRischio.fumatore
-          ? form.fattoreDiRischio.dataInizioFumo || null
-          : null,
+        dataInizioFumo: form.fattoreDiRischio.fumatore ? form.fattoreDiRischio.dataInizioFumo || null : null,
         usoAlcol: form.fattoreDiRischio.usoAlcol,
-        dataUltimaAssunzioneAlcol: form.fattoreDiRischio.usoAlcol
-          ? form.fattoreDiRischio.dataUltimaAssunzioneAlcol || null
-          : null,
+        dataUltimaAssunzioneAlcol: form.fattoreDiRischio.usoAlcol ? form.fattoreDiRischio.dataUltimaAssunzioneAlcol || null : null,
         usoStupefacente: form.fattoreDiRischio.usoStupefacente,
-        dataUltimaAssunzioneStupefacente: form.fattoreDiRischio.usoStupefacente
-          ? form.fattoreDiRischio.dataUltimaAssunzioneStupefacente || null
-          : null,
+        dataUltimaAssunzioneStupefacente: form.fattoreDiRischio.usoStupefacente ? form.fattoreDiRischio.dataUltimaAssunzioneStupefacente || null : null,
         note: form.fattoreDiRischio.note,
       },
     };
-
     onCreated(payload);
   };
 
   const maxDate = new Date().toISOString().slice(0, 10);
 
   return (
-    <Modal
-      show={show}
-      onHide={onHide}
-      size="lg"
-      centered
-      scrollable
-      dialogClassName="rounded-4 shadow-lg"
-      contentClassName="bg-light p-4"
-    >
+    <Modal show={show} onHide={onHide} size="lg" centered scrollable dialogClassName="rounded-4" contentClassName="bg-light p-4">
       <Modal.Header closeButton>
-        <Modal.Title className="fw-bold fs-4">
-          {initialData ? "Modifica Anamnesi" : "Nuova Anamnesi"}
-        </Modal.Title>
+        <Modal.Title className="fw-bold fs-4">{initialData ? "Modifica Anamnesi" : "Nuova Anamnesi"}</Modal.Title>
       </Modal.Header>
 
       <Form onSubmit={handleSubmit}>
         <Modal.Body>
-        <Button
-  variant={showFattori ? "outline-primary" : "primary"}
-  onClick={() => setShowFattori((v) => !v)}
-  className="d-flex align-items-center mb-3 gap-2 px-3 py-2"
-  style={{ cursor: "pointer", fontWeight: "600" }}
->
-  {showFattori ? <ChevronUp /> : <ChevronDown />}
-  <span>Fattori di Rischio</span>
-</Button>
+          <Form.Group controlId="anno" className="mb-3">
+            <Form.Label>Anno di riferimento</Form.Label>
+            <Form.Control
+              type="number"
+              name="anno"
+              value={form.anno}
+              onChange={handleChange}
+              placeholder="Es. 2024"
+              min="1928"
+              max={new Date().getFullYear()}
+              required
+            />
+          </Form.Group>
 
+          <Form.Group controlId="titolo" className="mb-3">
+            <Form.Label>Titolo</Form.Label>
+            <Form.Control
+              type="text"
+              name="titolo"
+              value={form.titolo}
+              onChange={handleChange}
+              placeholder="Inserisci titolo"
+              required
+            />
+          </Form.Group>
+
+          <Form.Group controlId="descrizioneAnamnesi" className="mb-4">
+            <Form.Label>Descrizione Anamnesi</Form.Label>
+            <Form.Control
+              as="textarea"
+              rows={5}
+              name="descrizioneAnamnesi"
+              value={form.descrizioneAnamnesi}
+              onChange={handleChange}
+              placeholder="Inserisci descrizione"
+              required
+            />
+          </Form.Group>
+
+          <Button
+            variant={showFattori ? "outline-primary" : "primary"}
+            onClick={() => setShowFattori((v) => !v)}
+            className="d-flex align-items-center mb-3 gap-2 px-3 py-2"
+            style={{ cursor: "pointer", fontWeight: "600" }}
+          >
+            {showFattori ? <ChevronUp /> : <ChevronDown />}
+            <span>Fattori di Rischio</span>
+          </Button>
 
           {showFattori && (
             <>
@@ -208,18 +228,6 @@ function ModaleNuovaAnamnesi({ show, onHide, pazienteId, onCreated, initialData 
               </Form.Group>
             </>
           )}
-
-          <Form.Group controlId="descrizioneAnamnesi" className="mt-3">
-            <Form.Label>Descrizione Anamnesi</Form.Label>
-            <Form.Control
-              as="textarea"
-              rows={5}
-              name="descrizioneAnamnesi"
-              value={form.descrizioneAnamnesi}
-              onChange={handleChange}
-              placeholder="Inserisci descrizione"
-            />
-          </Form.Group>
         </Modal.Body>
 
         <Modal.Footer className="border-0">
@@ -236,6 +244,10 @@ function ModaleNuovaAnamnesi({ show, onHide, pazienteId, onCreated, initialData 
 }
 
 export default ModaleNuovaAnamnesi;
+
+
+
+
 
 
 

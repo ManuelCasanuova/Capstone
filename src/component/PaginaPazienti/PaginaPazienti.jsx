@@ -142,7 +142,7 @@ const PaginaPazienti = () => {
 
   return (
     <>
-      <Container className="mb-3">
+      <Container >
         <div className="d-flex align-items-center">
           <h2 className="me-auto">Pazienti</h2>
           <Image src={logo} alt="Logo" fluid style={{ width: "150px" }} />
@@ -222,25 +222,25 @@ const PaginaPazienti = () => {
             <div className="d-flex justify-content-between align-items-center mb-3">
               <div className="d-flex align-items-center">
                 <Button
-                  variant="outline-secondary"
+                  variant="outline-primary"
                   onClick={() => setPaginaCorrente((prev) => Math.max(prev - 1, 0))}
                   disabled={paginaCorrente === 0}
                   className="me-2"
                   size="sm"
                 >
-                  ← Precedente
+                  ← 
                 </Button>
                 <span className="pagination-text">
                   Pagina {paginaCorrente + 1} di {totalePagine}
                 </span>
                 <Button
-                  variant="outline-secondary"
+                  variant="outline-primary"
                   onClick={() => setPaginaCorrente((prev) => Math.min(prev + 1, totalePagine - 1))}
                   disabled={paginaCorrente >= totalePagine - 1}
                   className="ms-2"
                   size="sm"
                 >
-                  Successiva →
+                   →
                 </Button>
               </div>
 

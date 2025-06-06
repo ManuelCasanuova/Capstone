@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAppuntamenti } from "../../redux/actions";
-import { ListGroup, Badge, Container, Image } from "react-bootstrap";
+import { ListGroup, Badge, Container, Image, Placeholder } from "react-bootstrap";
 import { useAuth } from "../access/AuthContext";  
 
 const AppuntamentiOggi = () => {
@@ -11,10 +11,11 @@ const AppuntamentiOggi = () => {
   const { user } = useAuth();
 
   const [appuntamentiOggi, setAppuntamentiOggi] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (token) {
-      dispatch(fetchAppuntamenti(token));
+      dispatch(fetchAppuntamenti(token)).finally(() => setLoading(false));
     }
   }, [dispatch, token]);
 
@@ -40,13 +41,36 @@ const AppuntamentiOggi = () => {
   }, [appuntamentiRedux, user]);
 
   return (
-    
-    <Container className="border rounded-3 shadow-sm p-4">
+    <Container className="border rounded-3 shadow-sm p-4 ">
       <h4 className="mb-3">Appuntamenti di oggi</h4>
-      {appuntamentiOggi.length > 0 ? (
+
+      {loading ? (
+        <ListGroup>
+          {[...Array(3)].map((_, index) => (
+            <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center">
+              <div className="d-flex align-items-center">
+                <Placeholder
+                  as="div"
+                  animation="glow"
+                  style={{ width: 40, height: 40, marginRight: 12, borderRadius: "50%" }}
+                  className="bg-secondary"
+                />
+                <div>
+                  <Placeholder as="p" animation="glow" className="mb-1">
+                    <Placeholder xs={6} />
+                  </Placeholder>
+                  <Placeholder as="p" animation="glow">
+                    <Placeholder xs={4} />
+                  </Placeholder>
+                </div>
+              </div>
+              <Placeholder.Button variant="success" xs={2} />
+            </ListGroup.Item>
+          ))}
+        </ListGroup>
+      ) : appuntamentiOggi.length > 0 ? (
         <ListGroup>
           {appuntamentiOggi.map((app) => (
-            console.log("APP", appuntamentiOggi),
             <ListGroup.Item
               key={app.id}
               className="d-flex justify-content-between align-items-center"
@@ -81,4 +105,5 @@ const AppuntamentiOggi = () => {
 };
 
 export default AppuntamentiOggi;
+
 

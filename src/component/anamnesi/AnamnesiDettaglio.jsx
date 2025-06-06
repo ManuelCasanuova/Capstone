@@ -92,7 +92,85 @@ function AnamnesiDettaglio({ anamnesi, onUpdate, onDelete }) {
 
       <Container>
         <Row>
-          <Col xs={12} md={4}>
+          
+
+          <Col xs={12} md={8}>
+            {!editMode ? (
+              <Card className="p-3 shadow-sm">
+
+                <Row className="mb-3">
+  <Col xs={6}> <p>
+    <strong>Anno evento:</strong> {formData.anno || "-"}
+  </p>
+  </Col>
+  <Col xs={6}>
+  <p>
+    <strong>Evento:</strong> {formData.titolo || "-"}
+    </p>
+  </Col>
+</Row>
+
+
+
+                <p className="mb-2">
+                  <strong>Descrizione evento/Anamnesi:</strong>
+                </p>
+                <p>{formData.descrizioneAnamnesi || "-"}</p>
+              </Card>
+            ) : (
+              
+               <Form onSubmit={handleSubmit}>
+  <Form.Group controlId="titolo" className="mb-3">
+    <Form.Label>Titolo</Form.Label>
+    <Form.Control
+      type="text"
+      name="titolo"
+      value={formData.titolo || ""}
+      onChange={handleChange}
+      disabled={loading}
+      required
+      maxLength={60}
+    />
+  </Form.Group>
+
+  <Form.Group controlId="anno" className="mb-3">
+    <Form.Label>Anno</Form.Label>
+    <Form.Control
+      type="number"
+      name="anno"
+      value={formData.anno || ""}
+      onChange={handleChange}
+      disabled={loading}
+      min={1920}
+      max={new Date().getFullYear()}
+      required
+    />
+  </Form.Group>
+
+  <Form.Group controlId="descrizioneAnamnesi" className="mb-3">
+    <Form.Label>Descrizione Anamnesi</Form.Label>
+    <Form.Control
+      as="textarea"
+      rows={6}
+      name="descrizioneAnamnesi"
+      value={formData.descrizioneAnamnesi || ""}
+      onChange={handleChange}
+      disabled={loading}
+      required
+    />
+  </Form.Group>
+
+                <Button variant="secondary" onClick={() => setEditMode(false)} disabled={loading}>
+                  Annulla
+                </Button>
+                <Button className="ms-2" variant="primary" type="submit" disabled={loading}>
+                  {loading ? "Salvataggio..." : "Salva"}
+                </Button>
+              </Form>
+            )}
+          </Col>
+
+<Col xs={12} md={4}>
             <Card className="p-3 shadow-sm position-relative">
               {!editMode && (
                 <div
@@ -232,49 +310,12 @@ function AnamnesiDettaglio({ anamnesi, onUpdate, onDelete }) {
                     />
                   </Form.Group>
 
-                  <Button variant="secondary" onClick={() => setEditMode(false)} disabled={loading}>
-                    Annulla
-                  </Button>
-                  <Button className="ms-2" variant="primary" type="submit" disabled={loading}>
-                    {loading ? "Salvataggio..." : "Salva"}
-                  </Button>
+                  
                 </Form>
               )}
             </Card>
           </Col>
 
-          <Col xs={12} md={8}>
-            {!editMode ? (
-              <Card className="p-3 shadow-sm">
-                <p className="mb-3">
-                  <strong>Descrizione Anamnesi:</strong>
-                </p>
-                <p>{formData.descrizioneAnamnesi || "-"}</p>
-              </Card>
-            ) : (
-              <Form onSubmit={handleSubmit}>
-                <Form.Group controlId="descrizioneAnamnesi" className="mb-3">
-                  <Form.Label>Descrizione Anamnesi</Form.Label>
-                  <Form.Control
-                    as="textarea"
-                    rows={6}
-                    name="descrizioneAnamnesi"
-                    value={formData.descrizioneAnamnesi || ""}
-                    onChange={handleChange}
-                    disabled={loading}
-                    required
-                  />
-                </Form.Group>
-
-                <Button variant="secondary" onClick={() => setEditMode(false)} disabled={loading}>
-                  Annulla
-                </Button>
-                <Button className="ms-2" variant="primary" type="submit" disabled={loading}>
-                  {loading ? "Salvataggio..." : "Salva"}
-                </Button>
-              </Form>
-            )}
-          </Col>
         </Row>
       </Container>
 

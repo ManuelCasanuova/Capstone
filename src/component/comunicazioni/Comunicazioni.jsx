@@ -3,10 +3,12 @@ import { useAuth } from "../access/AuthContext";
 import { Trash, Pencil } from "react-bootstrap-icons";
 import ModaleComunicazione from "../modali/ModaleComunicazione";
 import ModaleConferma from "../modali/ModaleConferma"; 
+import { Placeholder } from "react-bootstrap";
 
 function Comunicazioni() {
   const { user, token } = useAuth();
   const [comunicazioni, setComunicazioni] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [comunicazioneDaModificare, setComunicazioneDaModificare] = useState(null);
   const [showConferma, setShowConferma] = useState(false);
@@ -30,7 +32,8 @@ function Comunicazioni() {
         .catch(err => {
           console.error(err);
           setComunicazioni([]);
-        });
+        })
+        .finally(() => setLoading(false));
     }
   }, [user, token]);
 
@@ -75,7 +78,23 @@ function Comunicazioni() {
     <div className="container mt-4 border rounded shadow-sm p-4 bg-white">
       <h4 className="mb-4">Comunicazioni dallo Studio</h4>
 
-      {comunicazioni.length === 0 ? (
+      {loading ? (
+        <ul className="list-group mb-3">
+          {[...Array(3)].map((_, index) => (
+            <li key={index} className="list-group-item bg-light">
+              <Placeholder as="h4" animation="glow" className="mb-2">
+                <Placeholder xs={6} />
+              </Placeholder>
+              <Placeholder as="small" animation="glow">
+                <Placeholder xs={4} />
+              </Placeholder>
+              <Placeholder as="p" animation="glow" className="mt-3">
+                <Placeholder xs={8} /> <Placeholder xs={6} /> <Placeholder xs={5} />
+              </Placeholder>
+            </li>
+          ))}
+        </ul>
+      ) : comunicazioni.length === 0 ? (
         <>
           <div className="alert alert-info" role="alert">
             Nessuna comunicazione presente.
@@ -160,6 +179,7 @@ function Comunicazioni() {
 }
 
 export default Comunicazioni;
+
 
 
 
