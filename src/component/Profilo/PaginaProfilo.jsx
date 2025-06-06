@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../access/AuthContext";
 import Profilo from "./Profilo";
 import SideBar from "./SideBar";
-
 import ModaleConferma from "../modali/ModaleConferma";
 import { Container, Row, Col, Spinner, Image } from "react-bootstrap";
 import { Power } from "react-bootstrap-icons";
@@ -65,6 +64,7 @@ const PaginaProfilo = () => {
 
   return (
     <Container className="position-relative">
+      {/* Cuore mobile */}
       <Image
         src={cuore}
         alt="Cuore"
@@ -77,27 +77,28 @@ const PaginaProfilo = () => {
         }}
       />
 
+      {/* Titolo + Logo */}
       <Row className="align-items-center my-4">
-        <Col xs={12} md={8}>
+        <Col xs={6}>
           <h2>Profilo</h2>
         </Col>
-        <Col xs={12} md={4} className="text-md-end text-center mt-3 mt-md-0">
+        <Col xs={6} className="text-end">
           <Image
             src={logo}
             alt="Logo"
             fluid
-            className="d-none d-md-block"
             style={{ maxWidth: "150px" }}
           />
         </Col>
       </Row>
 
+      {/* Contenuto */}
       <Row>
         <Col xs={12} md={7} className="d-flex justify-content-center mb-4 mb-md-0">
           {loading ? (
             <div className="spinner-grow text-success mt-5" role="status">
-  <span className="visually-hidden">Loading...</span>
-</div>
+              <span className="visually-hidden">Loading...</span>
+            </div>
           ) : datiDaMostrare ? (
             <Profilo utente={datiDaMostrare} />
           ) : (
@@ -107,14 +108,12 @@ const PaginaProfilo = () => {
 
         <Col xs={12} md={5} className="d-flex flex-column align-items-center">
           {shouldShowSidebar && datiDaMostrare?.id && (
-            <>
-              <SideBar pazienteId={datiDaMostrare.id} />
-            </>
+            <SideBar pazienteId={datiDaMostrare.id} />
           )}
         </Col>
       </Row>
 
-     
+      {/* Pulsante Logout mobile */}
       <div
         className="d-md-none position-fixed"
         style={{
@@ -142,6 +141,7 @@ const PaginaProfilo = () => {
         <Power size={24} color="#074662" />
       </div>
 
+  
       <ModaleConferma
         show={showModaleLogout}
         onConferma={handleLogout}
