@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router";
-import { Container, ListGroup, Spinner, Button, Image } from "react-bootstrap";
+import { Container, ListGroup, Button, Image } from "react-bootstrap";
 import ModaleNuovaAnamnesi from "../modali/ModaleNuovaAnamnesi";
 import AnamnesiDettaglio from "./AnamnesiDettaglio";
 
@@ -12,7 +12,6 @@ function AnamnesiPaziente() {
   const [showModal, setShowModal] = useState(false);
 
   const apiUrl = import.meta.env.VITE_API_URL;
-
 
   const fetchAnamnesi = () => {
     if (!pazienteId) return;
@@ -33,7 +32,6 @@ function AnamnesiPaziente() {
   useEffect(() => {
     fetchAnamnesi();
   }, [pazienteId]);
-
 
   const createAnamnesi = async (newAnamnesi) => {
     try {
@@ -60,6 +58,7 @@ function AnamnesiPaziente() {
     );
     setSelectedAnamnesi(updatedAnamnesi);
   };
+
   const deleteAnamnesi = (id) => {
     setAnamnesi((prev) => prev.filter((a) => a.id !== id));
     setSelectedAnamnesi(null);
@@ -68,7 +67,9 @@ function AnamnesiPaziente() {
   if (loading) {
     return (
       <Container className="mt-3 text-center">
-        <Spinner animation="border" />
+        <div className="spinner-grow text-success mt-5" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
       </Container>
     );
   }
@@ -85,7 +86,6 @@ function AnamnesiPaziente() {
   }
 
   return (
-      
     <Container className="mt-3">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h4>Anamnesi</h4>
@@ -115,17 +115,14 @@ function AnamnesiPaziente() {
         </Container>
       ) : (
         <ListGroup>
-
-        
           {anamnesi.map((a) => (
-
             <ListGroup.Item
               key={a.id}
               action
               onClick={() => setSelectedAnamnesi(a)}
               style={{ cursor: "pointer" }}
             >
-              {a.anno}{" "} – {a.titolo}{" "}
+              {a.anno} – {a.titolo}
             </ListGroup.Item>
           ))}
         </ListGroup>
@@ -145,5 +142,6 @@ function AnamnesiPaziente() {
 }
 
 export default AnamnesiPaziente;
+
 
 

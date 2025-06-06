@@ -77,25 +77,27 @@ const PaginaProfilo = () => {
         }}
       />
 
-    <Row className="align-items-center justify-content-between my-4">
-  <Col xs={6} className="d-flex align-items-center">
-    <h2 className="mb-0">Profilo</h2>
-  </Col>
-  <Col xs={6} className="text-end">
-    <Image
-      src={logo}
-      alt="Logo"
-      fluid
-      style={{ maxWidth: "150px" }}
-    />
-  </Col>
-</Row>
-
+      <Row className="align-items-center my-4">
+        <Col xs={12} md={8}>
+          <h2>Profilo</h2>
+        </Col>
+        <Col xs={12} md={4} className="text-md-end text-center mt-3 mt-md-0">
+          <Image
+            src={logo}
+            alt="Logo"
+            fluid
+            className="d-none d-md-block"
+            style={{ maxWidth: "150px" }}
+          />
+        </Col>
+      </Row>
 
       <Row>
         <Col xs={12} md={7} className="d-flex justify-content-center mb-4 mb-md-0">
           {loading ? (
-            <Spinner animation="border" />
+            <div className="spinner-grow text-success mt-5" role="status">
+  <span className="visually-hidden">Loading...</span>
+</div>
           ) : datiDaMostrare ? (
             <Profilo utente={datiDaMostrare} />
           ) : (

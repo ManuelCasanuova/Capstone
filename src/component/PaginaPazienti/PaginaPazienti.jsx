@@ -1,4 +1,4 @@
-import { Col, Container, Row, Image, Button, Form, Alert } from "react-bootstrap";
+import { Col, Container, Row, Image, Button, Form, Alert, Placeholder } from "react-bootstrap";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
@@ -102,7 +102,6 @@ const PaginaPazienti = () => {
 
     try {
       const risultati = await dispatch(fetchPazientiByNomeCognome(token, nomeRicerca.trim(), cognomeRicerca.trim()));
-
       const dati = risultati.payload || risultati;
 
       if (Array.isArray(dati)) {
@@ -111,13 +110,8 @@ const PaginaPazienti = () => {
           setListaFiltrata([]);
         } else {
           setAlertNessunRisultato(false);
-          if (dati.length === 1) {
-            setListaFiltrata(dati);
-            setMostraComponente("singleCard");
-          } else {
-            setListaFiltrata(dati);
-            setMostraComponente("list");
-          }
+          setListaFiltrata(dati);
+          setMostraComponente(dati.length === 1 ? "singleCard" : "list");
         }
       } else {
         setAlertNessunRisultato(true);
@@ -142,7 +136,7 @@ const PaginaPazienti = () => {
 
   return (
     <>
-      <Container >
+      <Container>
         <div className="d-flex align-items-center">
           <h2 className="me-auto">Pazienti</h2>
           <Image src={logo} alt="Logo" fluid style={{ width: "150px" }} />
@@ -153,34 +147,15 @@ const PaginaPazienti = () => {
         <Form onSubmit={handleRicerca} className="mb-3" style={{ maxWidth: "600px" }}>
           <Row className="g-2 align-items-center">
             <Col xs={12} md={5}>
-              <Form.Control
-                type="text"
-                placeholder="Nome"
-                value={nomeRicerca}
-                onChange={(e) => setNomeRicerca(e.target.value)}
-                size="sm"
-              />
+              <Form.Control type="text" placeholder="Nome" value={nomeRicerca} onChange={(e) => setNomeRicerca(e.target.value)} size="sm" />
             </Col>
             <Col xs={12} md={5}>
-              <Form.Control
-                type="text"
-                placeholder="Cognome"
-                value={cognomeRicerca}
-                onChange={(e) => setCognomeRicerca(e.target.value)}
-                size="sm"
-              />
+              <Form.Control type="text" placeholder="Cognome" value={cognomeRicerca} onChange={(e) => setCognomeRicerca(e.target.value)} size="sm" />
             </Col>
             <Col xs={12} md={2}>
-              <Button
-  type="submit"
-  size="sm"
-  className=" d-flex justify-content-center align-items-center p-0"
-  variant="outline-primary"
-  style={{ borderRadius: "50%", width: "36px", height: "36px" }}
-  title="Cerca"
->
-  <Search color="#0d6efd" size={20} />
-</Button>
+              <Button type="submit" size="sm" className="d-flex justify-content-center align-items-center p-0" variant="outline-primary" style={{ borderRadius: "50%", width: "36px", height: "36px" }} title="Cerca">
+                <Search color="#0d6efd" size={20} />
+              </Button>
             </Col>
           </Row>
         </Form>
@@ -199,21 +174,10 @@ const PaginaPazienti = () => {
 
         {alertNessunRisultato && (
           <div className="text-center py-5">
-            <Alert
-              variant="warning"
-              dismissible
-              onClose={chiudiAlert}
-              className="mt-5 mx-auto"
-              style={{ maxWidth: "600px" }}
-            >
+            <Alert variant="warning" dismissible onClose={chiudiAlert} className="mt-5 mx-auto" style={{ maxWidth: "600px" }}>
               Nessun paziente trovato per la ricerca
             </Alert>
-            <img
-              src="https://cdn-icons-png.flaticon.com/512/4076/4076549.png"
-              alt="Nessun risultato"
-              className="mt-5"
-              style={{ width: "200px", opacity: 0.6 }}
-            />
+            <img src="https://cdn-icons-png.flaticon.com/512/4076/4076549.png" alt="Nessun risultato" className="mt-5" style={{ width: "200px", opacity: 0.6 }} />
           </div>
         )}
 
@@ -221,43 +185,17 @@ const PaginaPazienti = () => {
           <>
             <div className="d-flex justify-content-between align-items-center mb-3">
               <div className="d-flex align-items-center">
-                <Button
-                  variant="outline-primary"
-                  onClick={() => setPaginaCorrente((prev) => Math.max(prev - 1, 0))}
-                  disabled={paginaCorrente === 0}
-                  className="me-2"
-                  size="sm"
-                >
-                  ← 
-                </Button>
-                <span className="pagination-text">
-                  Pagina {paginaCorrente + 1} di {totalePagine}
-                </span>
-                <Button
-                  variant="outline-primary"
-                  onClick={() => setPaginaCorrente((prev) => Math.min(prev + 1, totalePagine - 1))}
-                  disabled={paginaCorrente >= totalePagine - 1}
-                  className="ms-2"
-                  size="sm"
-                >
-                   →
-                </Button>
+                <Button variant="outline-primary" onClick={() => setPaginaCorrente((prev) => Math.max(prev - 1, 0))} disabled={paginaCorrente === 0} className="me-2" size="sm">←</Button>
+                <span className="pagination-text">Pagina {paginaCorrente + 1} di {totalePagine}</span>
+                <Button variant="outline-primary" onClick={() => setPaginaCorrente((prev) => Math.min(prev + 1, totalePagine - 1))} disabled={paginaCorrente >= totalePagine - 1} className="ms-2" size="sm">→</Button>
               </div>
 
               {!isSmallScreen && mostraComponente !== "singleCard" && (
                 <div className="d-flex">
-                  <div
-                    className={`border rounded-start p-2 bg-white ${mostraComponente === "card" ? "text-success" : ""}`}
-                    onClick={() => handleCambiaComponente("card")}
-                    style={{ cursor: "pointer" }}
-                  >
+                  <div className={`border rounded-start p-2 bg-white ${mostraComponente === "card" ? "text-success" : ""}`} onClick={() => handleCambiaComponente("card")} style={{ cursor: "pointer" }}>
                     <i className="bi bi-grid"></i>
                   </div>
-                  <div
-                    className={`border border-start-0 rounded-end p-2 bg-white ${mostraComponente === "list" ? "text-success" : ""}`}
-                    onClick={() => handleCambiaComponente("list")}
-                    style={{ cursor: "pointer" }}
-                  >
+                  <div className={`border border-start-0 rounded-end p-2 bg-white ${mostraComponente === "list" ? "text-success" : ""}`} onClick={() => handleCambiaComponente("list")} style={{ cursor: "pointer" }}>
                     <i className="bi bi-list"></i>
                   </div>
                 </div>
@@ -265,7 +203,21 @@ const PaginaPazienti = () => {
             </div>
 
             <Container className="bg-white rounded-3 px-0 mb-2">
-              {mostraComponente === "singleCard" && listaDaMostrare.length === 1 ? (
+              {listaFiltrata === null && utentiRedux.length === 0 ? (
+                <Row className="p-4">
+                  {[...Array(12)].map((_, index) => (
+                    <Col key={index} xs={12} sm={6} md={4} lg={3} className="mb-4">
+                      <div className="border rounded shadow-sm p-3 text-center">
+                        <Placeholder animation="wave">
+                          <Placeholder as="div" className="rounded-circle mx-auto mb-3" style={{ width: "80px", height: "80px" }} />
+                          <Placeholder xs={8} className="mb-2" />
+                          <Placeholder xs={6} />
+                        </Placeholder>
+                      </div>
+                    </Col>
+                  ))}
+                </Row>
+              ) : mostraComponente === "singleCard" && listaDaMostrare.length === 1 ? (
                 <Row className="justify-content-center">
                   <Col xs={10} sm={8} md={4} lg={3}>
                     <CardPazienti utente={listaDaMostrare[0]} />
@@ -273,45 +225,28 @@ const PaginaPazienti = () => {
                 </Row>
               ) : (
                 <Row xs={mostraComponente === "card" ? 4 : 1}>
-                  {listaDaMostrare && listaDaMostrare.length > 0 &&
-                    (mostraComponente === "card" ? (
-                      listaDaMostrare.map((utente) => (
+                  {mostraComponente === "card"
+                    ? listaDaMostrare.map((utente) => (
                         <Col key={utente.id} className="mb-4">
                           <CardPazienti utente={utente} />
                         </Col>
                       ))
-                    ) : (
+                    : (
                       <Col>
                         {listaDaMostrare.map((utente) => (
-                          <div
-                            key={utente.id}
-                            className="d-flex justify-content-between align-items-center border-bottom py-2 px-3"
-                          >
+                          <div key={utente.id} className="d-flex justify-content-between align-items-center border-bottom py-2 px-3">
                             <div className="d-flex align-items-center mb-2">
-                              <Image
-                                src={utente.avatar || "https://via.placeholder.com/40x40.png?text=👤"}
-                                alt={`${utente.nome} ${utente.cognome}`}
-                                roundedCircle
-                                style={{ width: "40px", height: "40px", objectFit: "cover", marginRight: "12px" }}
-                              />
+                              <Image src={utente.avatar || "https://via.placeholder.com/40x40.png?text=👤"} alt={`${utente.nome} ${utente.cognome}`} roundedCircle style={{ width: "40px", height: "40px", objectFit: "cover", marginRight: "12px" }} />
                               <div>
                                 <h5 className="mb-0">{utente.cognome}</h5>
                                 <p className="mb-0 text-muted small">{utente.nome}</p>
                               </div>
                             </div>
-
-                            <Link
-                              to={`/paginaProfilo/${utente.id}`}
-                              state={utente}
-                              className="btn btn-primary d-flex align-items-center"
-                            >
-                              Vai al profilo
-                            </Link>
+                            <Link to={`/paginaProfilo/${utente.id}`} state={utente} className="btn btn-primary d-flex align-items-center">Vai al profilo</Link>
                           </div>
                         ))}
                       </Col>
-                    ))
-                  }
+                    )}
                 </Row>
               )}
             </Container>
@@ -319,14 +254,11 @@ const PaginaPazienti = () => {
         )}
       </Container>
 
-      <ModaleNuovoPaziente
-        show={showModal}
-        onHide={() => setShowModal(false)}
-        onSubmit={handleSalvaPaziente}
-      />
+      <ModaleNuovoPaziente show={showModal} onHide={() => setShowModal(false)} onSubmit={handleSalvaPaziente} />
     </>
   );
 };
 
 export default PaginaPazienti;
+
 

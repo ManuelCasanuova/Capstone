@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router";
-import { Container, ListGroup, Spinner, Button, Image } from "react-bootstrap";
+import { Container, ListGroup, Button, Image } from "react-bootstrap";
 import ModalePianoTerapeutico from "../modali/ModalePianoTerapeutico";
 import DettaglioPianoTerapeutico from "./DettaglioPianoTerapeutico";
 
@@ -14,7 +14,6 @@ function PaginaPianoTerapeutico() {
   const apiUrl = import.meta.env.VITE_API_URL;
   const token = localStorage.getItem("token");
 
-  
   const fetchFarmaci = () => {
     if (!pazienteId) return;
     setLoading(true);
@@ -32,12 +31,10 @@ function PaginaPianoTerapeutico() {
     fetchFarmaci();
   }, [pazienteId]);
 
-  
   const handleDeleteSuccess = (deletedId) => {
     setFarmaci((prev) => prev.filter((f) => f.id !== deletedId));
     setSelectedFarmaco(null);
   };
-
 
   const handleUpdateSuccess = (updatedFarmaco) => {
     setFarmaci((prev) =>
@@ -49,11 +46,15 @@ function PaginaPianoTerapeutico() {
   if (loading) {
     return (
       <Container className="mt-3 text-center">
-        <Spinner animation="border" />
+        <h4>Piano Terapeutico</h4>
+        <div className="text-center">
+          <div className="spinner-grow text-success mt-5" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+        </div>
       </Container>
     );
   }
-
 
   if (selectedFarmaco) {
     return (
@@ -100,7 +101,6 @@ function PaginaPianoTerapeutico() {
               style={{ cursor: "pointer" }}
             >
               {new Date(farmaco.dataInserimento).toLocaleDateString("it-IT")} - {farmaco.nomeCommerciale}
-
             </ListGroup.Item>
           ))}
         </ListGroup>
@@ -112,7 +112,6 @@ function PaginaPianoTerapeutico() {
         pazienteId={pazienteId}
         onCreated={async (newFarmaco) => {
           try {
-           
             const res = await fetch(`${apiUrl}/farmaci/${newFarmaco.id}`, {
               headers: { Authorization: `Bearer ${token}` },
             });

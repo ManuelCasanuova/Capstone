@@ -14,6 +14,7 @@ const Esami = () => {
   const [showModalUpload, setShowModalUpload] = useState(false);
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [error, setError] = useState(null);
+  const [isLoadingEsami, setIsLoadingEsami] = useState(true);
   const apiUrl = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
@@ -33,15 +34,15 @@ const Esami = () => {
           }
 
           const data = await res.json();
-
           data.sort((a, b) => new Date(b.dataCaricamento) - new Date(a.dataCaricamento));
-
           setEsami(data);
           setError(null);
         } catch (err) {
           console.error(err);
           setError("Errore nel recupero degli esami.");
           setEsami([]);
+        } finally {
+          setIsLoadingEsami(false);
         }
       };
 
@@ -92,54 +93,66 @@ const Esami = () => {
     <div className="container mt-4">
       <div className="d-flex justify-content-between align-items-center">
         <h2>Esami</h2>
-
         <Button variant="success" className="mb-3" onClick={() => setShowModalUpload(true)}>
           Carica Nuovo Esame
         </Button>
       </div>
 
-      {showSuccessAlert && (
-        <Alert variant="success" dismissible>
-          Esame caricato con successo!
-        </Alert>
-      )}
-
-      {error && <Alert variant="danger">{error}</Alert>}
-
-      {esami.length === 0 && !error ? (
-        <div className="text-center d-flex flex-column align-items-center justify-content-center" style={{ minHeight: "40vh", marginBottom: 30 }}>
-          <h4 className="my-3">Nessun esame disponibile per questo paziente.</h4>
-          <Image
-            src="https://cdn-icons-png.flaticon.com/512/4076/4076549.png"
-            alt="Nessun esame"
-            style={{ width: 200, opacity: 0.6 }}
-            rounded
-          />
+      {isLoadingEsami ? (
+        <div className="text-center">
+          <div className="spinner-grow text-success mt-5" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
         </div>
       ) : (
-        <Table striped bordered hover>
-          <thead>
-            <tr>
-              <th>Data Esame</th>
-              <th>Nome File</th>
-              <th>Note</th>
-            </tr>
-          </thead>
-          <tbody>
-            {esami.map((esame) => (
-              <tr
-                key={esame.id}
-                className="riga-esame"
-                style={{ cursor: "pointer" }}
-                onClick={() => apriPdfInModale(esame.id)}
-              >
-                <td>{new Date(esame.dataEsame).toLocaleDateString("it-IT")}</td>
-                <td>{esame.nomeFile}</td>
-                <td>{esame.note}</td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
+        <>
+          {showSuccessAlert && (
+            <Alert variant="success" dismissible>
+              Esame caricato con successo!
+            </Alert>
+          )}
+
+          {error && <Alert variant="danger">{error}</Alert>}
+
+          {esami.length === 0 && !error ? (
+            <div
+              className="text-center d-flex flex-column align-items-center justify-content-center"
+              style={{ minHeight: "40vh", marginBottom: 30 }}
+            >
+              <h4 className="my-3">Nessun esame disponibile per questo paziente.</h4>
+              <Image
+                src="https://cdn-icons-png.flaticon.com/512/4076/4076549.png"
+                alt="Nessun esame"
+                style={{ width: 200, opacity: 0.6 }}
+                rounded
+              />
+            </div>
+          ) : (
+            <Table striped bordered hover>
+              <thead>
+                <tr>
+                  <th>Data Esame</th>
+                  <th>Nome File</th>
+                  <th>Note</th>
+                </tr>
+              </thead>
+              <tbody>
+                {esami.map((esame) => (
+                  <tr
+                    key={esame.id}
+                    className="riga-esame"
+                    style={{ cursor: "pointer" }}
+                    onClick={() => apriPdfInModale(esame.id)}
+                  >
+                    <td>{new Date(esame.dataEsame).toLocaleDateString("it-IT")}</td>
+                    <td>{esame.nomeFile}</td>
+                    <td>{esame.note}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          )}
+        </>
       )}
 
       <ModaleVisualizzaEsame
@@ -159,6 +172,7 @@ const Esami = () => {
 };
 
 export default Esami;
+
 
 
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
-import { Container, Spinner, Alert, ListGroup, Button, Image } from "react-bootstrap";
+import { Container, Alert, ListGroup, Button, Image } from "react-bootstrap";
 
 const AppuntamentiPaziente = () => {
   const { id } = useParams();
@@ -51,9 +51,6 @@ const AppuntamentiPaziente = () => {
     return `${formattedDate} - ${formattedTime}`;
   };
 
-  if (loading) return <Spinner animation="border" />;
-  if (errore) return <Alert variant="danger">Errore: {errore}</Alert>;
-
   return (
     <Container className="mt-4">
       <div className="d-flex justify-content-between align-items-center">
@@ -73,7 +70,15 @@ const AppuntamentiPaziente = () => {
         </Button>
       </div>
 
-      {appuntamenti.length === 0 ? (
+      {loading ? (
+        <div className="d-flex justify-content-center mt-5">
+          <div className="spinner-grow text-success" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+        </div>
+      ) : errore ? (
+        <Alert variant="danger">Errore: {errore}</Alert>
+      ) : appuntamenti.length === 0 ? (
         <div
           className="d-flex flex-column align-items-center justify-content-center"
           style={{ minHeight: "50vh" }}
@@ -101,6 +106,7 @@ const AppuntamentiPaziente = () => {
 };
 
 export default AppuntamentiPaziente;
+
 
 
 

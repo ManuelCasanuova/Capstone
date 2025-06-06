@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router";
-import { Container, ListGroup, Spinner, Button, Image } from "react-bootstrap";
+import { Container, ListGroup, Button, Image } from "react-bootstrap";
 import ModaleNuovaDiagnosi from "../modali/ModaleNuovaDiagnosi";
 import DettaglioDiagnosi from "./DettaglioDiagnosi";
 
@@ -13,7 +13,6 @@ function DiagnosiPaziente() {
 
   const apiUrl = import.meta.env.VITE_API_URL;
 
-  
   const fetchDiagnosi = () => {
     if (!pazienteId) return;
 
@@ -31,7 +30,6 @@ function DiagnosiPaziente() {
     fetchDiagnosi();
   }, [pazienteId]);
 
-  
   const handleUpdateDiagnosi = (updatedDiagnosi) => {
     setDiagnosi((prev) =>
       prev.map((d) => (d.id === updatedDiagnosi.id ? updatedDiagnosi : d))
@@ -39,19 +37,10 @@ function DiagnosiPaziente() {
     setSelectedDiagnosi(updatedDiagnosi);
   };
 
- 
   const handleDeleteDiagnosi = () => {
     fetchDiagnosi();
     setSelectedDiagnosi(null);
   };
-
-  if (loading) {
-    return (
-      <Container className="mt-3 text-center">
-        <Spinner animation="border" />
-      </Container>
-    );
-  }
 
   if (selectedDiagnosi) {
     return (
@@ -60,7 +49,7 @@ function DiagnosiPaziente() {
           diagnosi={selectedDiagnosi}
           onBack={() => setSelectedDiagnosi(null)}
           onDeleteSuccess={handleDeleteDiagnosi}
-          onUpdateSuccess={handleUpdateDiagnosi}  
+          onUpdateSuccess={handleUpdateDiagnosi}
         />
       </Container>
     );
@@ -75,7 +64,13 @@ function DiagnosiPaziente() {
         </Button>
       </div>
 
-      {diagnosi.length === 0 ? (
+      {loading ? (
+        <div className="text-center">
+          <div className="spinner-grow text-success mt-5" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+        </div>
+      ) : diagnosi.length === 0 ? (
         <Container
           className="text-center d-flex flex-column align-items-center justify-content-center"
           style={{ minHeight: "40vh", marginBottom: 30 }}
