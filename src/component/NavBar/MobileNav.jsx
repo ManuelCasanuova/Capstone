@@ -1,6 +1,6 @@
 import React from "react";
 import { Image, Nav } from "react-bootstrap";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useLocation } from "react-router";
 import {
   LayoutTextWindowReverse,
   Calendar3,
@@ -11,12 +11,19 @@ import { useAuth } from "../access/AuthContext";
 const MobileNav = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const isMedico = user?.roles?.includes("ROLE_ADMIN");
   const isPaziente = user?.roles?.includes("ROLE_PAZIENTE");
 
+  const isActive = (path) => location.pathname === path;
+  const iconColor = (active) => (active ? "var(--bs-success)" : "white");
+
   const avatarItem = (
-    <Nav.Item className="d-flex align-items-center justify-content-center" style={{ flex: "0 0 70px" }}>
+    <Nav.Item
+      className="d-flex align-items-center justify-content-center"
+      style={{ flex: "0 0 70px" }}
+    >
       <div
         onClick={() => navigate(`/paginaProfilo/${user?.id}`)}
         role="button"
@@ -60,7 +67,7 @@ const MobileNav = () => {
           className="d-flex flex-column align-items-center justify-content-center text-white"
           style={{ height: "100%" }}
         >
-          <LayoutTextWindowReverse size={28} />
+          <LayoutTextWindowReverse size={28} color={iconColor(isActive("/dashboard"))} />
         </Nav.Link>
       </Nav.Item>
 
@@ -74,7 +81,7 @@ const MobileNav = () => {
             className="d-flex flex-column align-items-center justify-content-center text-white"
             style={{ height: "100%" }}
           >
-            <People size={28} />
+            <People size={28} color={iconColor(isActive("/pazienti"))} />
           </Nav.Link>
         </Nav.Item>
       )}
@@ -87,7 +94,7 @@ const MobileNav = () => {
             className="d-flex flex-column align-items-center justify-content-center text-white"
             style={{ height: "100%" }}
           >
-            <Calendar3 size={28} />
+            <Calendar3 size={28} color={iconColor(isActive("/appuntamenti"))} />
           </Nav.Link>
         </Nav.Item>
       )}
@@ -98,6 +105,9 @@ const MobileNav = () => {
 };
 
 export default MobileNav;
+
+
+
 
 
 
