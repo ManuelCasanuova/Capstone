@@ -1,13 +1,16 @@
 import { useState, useEffect } from "react";
-import { Modal, Button, Form, Row, Col } from "react-bootstrap";
+import { Modal, Button, Form, Row, Col, Alert, Spinner } from "react-bootstrap";
 import { useNavigate } from "react-router";
 
 const ModaleModificaPaziente = ({ show, onHide, utente, onSave, canChangePassword }) => {
   const [formData, setFormData] = useState({ ...utente });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
     setFormData({ ...utente });
+    setError("");
   }, [utente]);
 
   const handleChange = (e) => {
@@ -15,10 +18,36 @@ const ModaleModificaPaziente = ({ show, onHide, utente, onSave, canChangePasswor
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSave(formData);
-    onHide();
+    setError("");
+    setLoading(true);
+
+    try {
+      const token = localStorage.getItem("token");
+
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/pazienti/${utente.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || "Errore durante l'aggiornamento");
+      }
+
+      const updated = await response.json();
+      onSave(updated); // notifica il componente Profilo
+      onHide();         // chiudi il modale
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCambiaPassword = () => {
@@ -32,8 +61,9 @@ const ModaleModificaPaziente = ({ show, onHide, utente, onSave, canChangePasswor
         <Modal.Title>Modifica Profilo Paziente</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <Form onSubmit={handleSubmit}>
+        {error && <Alert variant="danger">{error}</Alert>}
 
+        <Form onSubmit={handleSubmit}>
           <Row>
             <Col md={6} className="mb-3">
               <Form.Label>Nome</Form.Label>
@@ -197,8 +227,7 @@ const ModaleModificaPaziente = ({ show, onHide, utente, onSave, canChangePasswor
                 onChange={handleChange}
               />
             </Col>
-
-            <Col md={6} /> {/* vuoto per allineare */}
+            <Col md={6} />
           </Row>
 
           <div className="d-flex justify-content-between align-items-center mt-4">
@@ -214,12 +243,11 @@ const ModaleModificaPaziente = ({ show, onHide, utente, onSave, canChangePasswor
               <Button variant="secondary" onClick={onHide} className="me-2">
                 Annulla
               </Button>
-              <Button type="submit" variant="success">
-                Salva
+              <Button type="submit" variant="success" disabled={loading}>
+                {loading ? <Spinner animation="border" size="sm" /> : "Salva"}
               </Button>
             </div>
           </div>
-
         </Form>
       </Modal.Body>
     </Modal>
@@ -227,6 +255,7 @@ const ModaleModificaPaziente = ({ show, onHide, utente, onSave, canChangePasswor
 };
 
 export default ModaleModificaPaziente;
+
 
 
 

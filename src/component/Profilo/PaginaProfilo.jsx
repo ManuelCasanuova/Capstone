@@ -1,5 +1,5 @@
 import { useParams } from "react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useAuth } from "../access/AuthContext";
 import Profilo from "./Profilo";
 import SideBar from "./SideBar";
@@ -24,28 +24,32 @@ const PaginaProfilo = () => {
   const isMedico = user?.roles?.includes("ROLE_ADMIN");
   const isViewingOwnProfile = user?.id?.toString() === id;
 
-  useEffect(() => {
-    if (!id) return;
+  const fetchPaziente = useCallback(() => {
+    if (!id || isViewingOwnProfile) return;
 
-    if (!isViewingOwnProfile) {
-      setLoading(true);
-      fetch(`${apiUrl}/pazienti/${id}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
+    setLoading(true);
+    fetch(`${apiUrl}/pazienti/${id}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Errore fetch paziente");
+        return res.json();
       })
-        .then((res) => {
-          if (!res.ok) throw new Error("Errore fetch paziente");
-          return res.json();
-        })
-        .then((data) => setPaziente(data))
-        .catch(() => setPaziente(null))
-        .finally(() => setLoading(false));
+      .then((data) => setPaziente(data))
+      .catch(() => setPaziente(null))
+      .finally(() => setLoading(false));
+  }, [apiUrl, id, isViewingOwnProfile]);
+
+  useEffect(() => {
+    if (!isViewingOwnProfile) {
+      fetchPaziente();
     } else {
       setLoading(false);
       setPaziente(null);
     }
-  }, [id, apiUrl, isViewingOwnProfile]);
+  }, [fetchPaziente, isViewingOwnProfile]);
 
   const datiDaMostrare = isViewingOwnProfile ? user : paziente;
   const shouldShowSidebar = !isMedico || (isMedico && !isViewingOwnProfile);
@@ -64,7 +68,7 @@ const PaginaProfilo = () => {
 
   return (
     <Container className="position-relative">
-      {/* Cuore mobile */}
+  
       <Image
         src={cuore}
         alt="Cuore"
@@ -77,22 +81,14 @@ const PaginaProfilo = () => {
         }}
       />
 
-      {/* Titolo + Logo */}
+     
       <Row className="align-items-center my-4">
-        <Col xs={6}>
-          <h2>Profilo</h2>
-        </Col>
-        <Col xs={6} className="text-end">
-          <Image
-            src={logo}
-            alt="Logo"
-            fluid
-            style={{ maxWidth: "150px" }}
-          />
+        <Col xs={6}></Col>
+        <Col xs={6} className="text-end pe-4 ms-4">
+          <Image src={logo} alt="Logo" style={{ maxWidth: "150px" }} />
         </Col>
       </Row>
 
-      {/* Contenuto */}
       <Row>
         <Col xs={12} md={7} className="d-flex justify-content-center mb-4 mb-md-0">
           {loading ? (
@@ -100,7 +96,7 @@ const PaginaProfilo = () => {
               <span className="visually-hidden">Loading...</span>
             </div>
           ) : datiDaMostrare ? (
-            <Profilo utente={datiDaMostrare} />
+            <Profilo utente={datiDaMostrare} onAggiorna={fetchPaziente} />
           ) : (
             <p>Utente non trovato.</p>
           )}
@@ -113,7 +109,7 @@ const PaginaProfilo = () => {
         </Col>
       </Row>
 
-      {/* Pulsante Logout mobile */}
+
       <div
         className="d-md-none position-fixed"
         style={{
@@ -141,7 +137,6 @@ const PaginaProfilo = () => {
         <Power size={24} color="#074662" />
       </div>
 
-  
       <ModaleConferma
         show={showModaleLogout}
         onConferma={handleLogout}
@@ -153,6 +148,8 @@ const PaginaProfilo = () => {
 };
 
 export default PaginaProfilo;
+
+
 
 
 

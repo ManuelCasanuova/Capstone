@@ -4,7 +4,7 @@ import { Pencil, Person, CheckCircle } from "react-bootstrap-icons";
 import { useAuth } from "../access/AuthContext";
 import ModaleModificaPaziente from "../modali/ModaleModificaPaziente";
 
-const Profilo = ({ utente }) => {
+const Profilo = ({ utente, onAggiorna }) => {
   const { user, aggiornaAvatarUtente, aggiornaUtente } = useAuth();
 
   const [datiUtente, setDatiUtente] = useState(utente);
@@ -72,6 +72,7 @@ const Profilo = ({ utente }) => {
         aggiornaAvatarUtente(data.avatar);
         setDatiUtente((prev) => ({ ...prev, avatar: data.avatar }));
         setShowCheck(true);
+        if (onAggiorna) onAggiorna(); // aggiornamento dati da backend
       } else {
         throw new Error("Risposta del server non contiene avatar");
       }
@@ -87,6 +88,7 @@ const Profilo = ({ utente }) => {
     aggiornaUtente && aggiornaUtente(datiAggiornati);
     setShowModale(false);
     setAlert({ show: true, variant: "success", message: "Profilo aggiornato con successo!" });
+    if (onAggiorna) onAggiorna(); // richiamo alla GET dal genitore
   };
 
   return (
@@ -249,6 +251,7 @@ const Profilo = ({ utente }) => {
 };
 
 export default Profilo;
+
 
 
 

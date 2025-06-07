@@ -27,8 +27,9 @@ import Appuntamenti from './component/Appuntamenti/Appuntamenti'
 function AppWrapper() {
   const location = useLocation();
 
-  const nascondiNavbarIn = ["/login", "/cambio-password", "/"];
-  const mostraNavbar = !nascondiNavbarIn.includes(location.pathname);
+ const nascondiNavbarIn = ["/login", "/cambio-password"];
+const mostraNavbar = !nascondiNavbarIn.some(path => location.pathname.startsWith(path));
+
 
   return (
     <>

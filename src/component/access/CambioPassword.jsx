@@ -1,12 +1,23 @@
 import React, { useState } from "react";
-import { Form, Button, Container, Alert, InputGroup } from "react-bootstrap";
+import {
+  Form,
+  Button,
+  Container,
+  Alert,
+  InputGroup,
+  Row,
+  Col,
+  Image,
+} from "react-bootstrap";
 import { Eye, EyeSlash } from "react-bootstrap-icons";
 import { useNavigate } from "react-router";
 import { useAuth } from "./AuthContext";
+import bgImage from "../../assets/password.png";
+import logo from "../../assets/Logo.png"; // Logo in alto a destra
 
 function CambioPassword() {
   const navigate = useNavigate();
-  const { user, login } = useAuth();
+  const { user } = useAuth();
 
   const [formData, setFormData] = useState({
     oldPassword: "",
@@ -33,125 +44,156 @@ function CambioPassword() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError("");
-  setSuccess(false);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setSuccess(false);
 
-  if (formData.newPassword !== formData.confirmPassword) {
-    setError("Le nuove password non corrispondono");
-    return;
-  }
+    if (formData.newPassword !== formData.confirmPassword) {
+      setError("Le nuove password non corrispondono");
+      return;
+    }
 
-  try {
-    const token = localStorage.getItem("token");
-    console.log("Token usato per cambio password:", token);
+    try {
+      const token = localStorage.getItem("token");
 
-    const response = await fetch(apiUrl + "/change-password", {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        username: user?.username,
-        oldPassword: formData.oldPassword,
-        newPassword: formData.newPassword,
-      }),
-    });
+      const response = await fetch(apiUrl + "/change-password", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          username: user?.username,
+          oldPassword: formData.oldPassword,
+          newPassword: formData.newPassword,
+        }),
+      });
 
-    if (response.ok) {
       const text = await response.text();
-      if (text.includes("Password aggiornata correttamente")) {
+      if (response.ok && text.includes("Password aggiornata correttamente")) {
         setSuccess(true);
         setTimeout(() => navigate("/dashboard"), 1500);
       } else {
-        setError("Risposta imprevista: " + text);
+        setError(text || "Errore nel cambio password");
       }
-    } else {
-      const text = await response.text();
-      setError(text || "Errore nel cambio password");
+    } catch (err) {
+      setError("Errore di rete");
     }
-  } catch (err) {
-    setError("Errore di rete");
-  }
-};
-
+  };
 
   return (
-    <Container style={{ maxWidth: "500px", marginTop: "80px" }}>
-      <h3 className="mb-4">Cambio Password</h3>
+    <>
+     
+      <Row className="mt-4 mb-2">
+        <Col xs={6}></Col>
+        <Col xs={6} className="text-end pe-4">
+          <Image src={logo} alt="Logo" style={{ maxWidth: "150px" }} />
+        </Col>
+      </Row>
 
-      {error && <Alert variant="danger">{error}</Alert>}
-      {success && <Alert variant="success">Password aggiornata correttamente</Alert>}
+     
+      <Container
+        style={{
+          maxWidth: "500px",
+          padding: "30px",
+          borderRadius: "10px",
+          backgroundColor: "white",
+          boxShadow: "0 0 10px rgba(0,0,0,0.1)",
+          zIndex: 1,
+          position: "relative",
+        }}
+      >
+        {error && <Alert variant="danger">{error}</Alert>}
+        {success && (
+          <Alert variant="success">Password aggiornata correttamente</Alert>
+        )}
 
-      <Form onSubmit={handleSubmit}>
-        <Form.Group className="mb-3">
-          <Form.Label>Password attuale</Form.Label>
-          <InputGroup>
-            <Form.Control
-              type={showPassword.old ? "text" : "password"}
-              name="oldPassword"
-              value={formData.oldPassword}
-              onChange={handleChange}
-              required
-            />
-            <Button
-              variant="outline-secondary"
-              onClick={() => toggleVisibility("old")}
-              type="button"
-            >
-              {showPassword.old ? <EyeSlash /> : <Eye />}
-            </Button>
-          </InputGroup>
-        </Form.Group>
+        <Form onSubmit={handleSubmit}>
+          <Form.Group className="mb-3">
+            <Form.Label>Password attuale</Form.Label>
+            <InputGroup>
+              <Form.Control
+                type={showPassword.old ? "text" : "password"}
+                name="oldPassword"
+                value={formData.oldPassword}
+                onChange={handleChange}
+                required
+              />
+              <Button
+                variant="outline-secondary"
+                onClick={() => toggleVisibility("old")}
+                type="button"
+              >
+                {showPassword.old ? <EyeSlash /> : <Eye />}
+              </Button>
+            </InputGroup>
+          </Form.Group>
 
-        <Form.Group className="mb-3">
-          <Form.Label>Nuova password</Form.Label>
-          <InputGroup>
-            <Form.Control
-              type={showPassword.new ? "text" : "password"}
-              name="newPassword"
-              value={formData.newPassword}
-              onChange={handleChange}
-              required
-            />
-            <Button
-              variant="outline-secondary"
-              onClick={() => toggleVisibility("new")}
-              type="button"
-            >
-              {showPassword.new ? <EyeSlash /> : <Eye />}
-            </Button>
-          </InputGroup>
-        </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Nuova password</Form.Label>
+            <InputGroup>
+              <Form.Control
+                type={showPassword.new ? "text" : "password"}
+                name="newPassword"
+                value={formData.newPassword}
+                onChange={handleChange}
+                required
+              />
+              <Button
+                variant="outline-secondary"
+                onClick={() => toggleVisibility("new")}
+                type="button"
+              >
+                {showPassword.new ? <EyeSlash /> : <Eye />}
+              </Button>
+            </InputGroup>
+          </Form.Group>
 
-        <Form.Group className="mb-3">
-          <Form.Label>Conferma nuova password</Form.Label>
-          <InputGroup>
-            <Form.Control
-              type={showPassword.confirm ? "text" : "password"}
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              required
-            />
-            <Button
-              variant="outline-secondary"
-              onClick={() => toggleVisibility("confirm")}
-              type="button"
-            >
-              {showPassword.confirm ? <EyeSlash /> : <Eye />}
-            </Button>
-          </InputGroup>
-        </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Conferma nuova password</Form.Label>
+            <InputGroup>
+              <Form.Control
+                type={showPassword.confirm ? "text" : "password"}
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                required
+              />
+              <Button
+                variant="outline-secondary"
+                onClick={() => toggleVisibility("confirm")}
+                type="button"
+              >
+                {showPassword.confirm ? <EyeSlash /> : <Eye />}
+              </Button>
+            </InputGroup>
+          </Form.Group>
 
-        <Button type="submit" variant="success">
-          Salva
-        </Button>
-      </Form>
-    </Container>
+          <Button type="submit" variant="success">
+            Salva
+          </Button>
+        </Form>
+      </Container>
+
+  
+      <img
+        src={bgImage}
+        alt="Decorazione cambio password"
+        style={{
+          position: "fixed",
+          bottom: "0",
+          left: "0",
+          width: "600px",
+          opacity: 0.1,
+          zIndex: 0,
+          pointerEvents: "none",
+        }}
+      />
+    </>
   );
 }
 
 export default CambioPassword;
+
+
