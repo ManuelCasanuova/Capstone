@@ -82,12 +82,12 @@ const PaginaProfilo = () => {
       />
 
      
-      <Row className="align-items-center my-4">
-        <Col xs={6}></Col>
-        <Col xs={6} className="text-end pe-4 ms-4">
-          <Image src={logo} alt="Logo" style={{ maxWidth: "150px" }} />
-        </Col>
-      </Row>
+    <Row className="align-items-center my-4">
+  <Col className="text-end">
+    <Image src={logo} alt="Logo" style={{ maxWidth: "150px" }} />
+  </Col>
+</Row>
+
 
       <Row>
         <Col xs={12} md={7} className="d-flex justify-content-center mb-4 mb-md-0">

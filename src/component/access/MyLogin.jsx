@@ -54,7 +54,7 @@ function MyLogin() {
       }
 
       const data = await res.json();
-      console.log("Risposta login:", data);
+     
 
       if (data.token) {
         login(data.token);
@@ -62,7 +62,7 @@ function MyLogin() {
           navigate("/cambio-password", { state: { username: formData.username } });
         } else {
           login(data.token);
-          console.log("Token salvato dopo login:", data.token);
+
         }
       } else {
         setError("Token mancante nella risposta");
